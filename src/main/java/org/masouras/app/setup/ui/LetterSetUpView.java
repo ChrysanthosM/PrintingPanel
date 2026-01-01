@@ -2,13 +2,13 @@ package org.masouras.app.setup.ui;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -38,12 +38,11 @@ class LetterSetUpView extends VerticalLayout {
     private final Grid<LetterSetUpEntity> letterSetUpGrid = new Grid<>();
     private final Button createBtn = new Button("Create", event -> createLetterSetUp());
 
-
-    private final TextField letterType = new TextField();
+    private final ComboBox<LetterType> letterTypeComboBox = new ComboBox<>();
     private final NumberField seqNo = new NumberField();
-    private final TextField xslType = new TextField();
-    private final TextField rendererType = new TextField();
-    private final TextField actionType = new TextField();
+    private final ComboBox<XslType> xslTypeComboBox = new ComboBox<>();
+    private final ComboBox<RendererType> rendererTypeComboBox = new ComboBox<>();
+    private final ComboBox<ValidFlag> validFlagComboBox = new ComboBox<>();
 
     @PostConstruct
     private void init() {
@@ -52,35 +51,43 @@ class LetterSetUpView extends VerticalLayout {
         show();
     }
     private void load() {
-        letterType.setPlaceholder("Enter Letter Type");
-        letterType.setAriaLabel("Letter Type");
-        letterType.setMaxLength(5);
-        letterType.setMinWidth("20em");
+        letterTypeComboBox.setPlaceholder("Enter Letter Type");
+        letterTypeComboBox.setAriaLabel("Letter Type");
+        letterTypeComboBox.setMinWidth("20em");
+        letterTypeComboBox.setItems(LetterType.values());
 
         seqNo.setPlaceholder("Enter Sequence Number");
         seqNo.setAriaLabel("Sequence Number");
         seqNo.setMin(1);
         seqNo.setMax(999);
 
-        xslType.setPlaceholder("Enter XSL Type");
-        xslType.setAriaLabel("XSL Type");
-        xslType.setMaxLength(50);
-        xslType.setMinWidth("20em");
+        xslTypeComboBox.setPlaceholder("Enter XSL Type");
+        xslTypeComboBox.setAriaLabel("XSL Type");
+        xslTypeComboBox.setItems(XslType.values());
+        xslTypeComboBox.setMinWidth("20em");
 
-        rendererType.setPlaceholder("Enter Renderer Type");
-        rendererType.setAriaLabel("Renderer Type");
-        rendererType.setMaxLength(3);
-        rendererType.setMinWidth("20em");
+        rendererTypeComboBox.setPlaceholder("Enter Renderer Type");
+        rendererTypeComboBox.setAriaLabel("Renderer Type");
+        rendererTypeComboBox.setItems(RendererType.values());
+        rendererTypeComboBox.setMinWidth("20em");
 
-        actionType.setPlaceholder("Enter Action Type");
-        actionType.setAriaLabel("Action Type");
-        actionType.setMaxLength(1);
-        actionType.setMinWidth("20em");
+        validFlagComboBox.setPlaceholder("Enter Action Type");
+        validFlagComboBox.setAriaLabel("Action Type");
+        validFlagComboBox.setItems(ValidFlag.values());
+        validFlagComboBox.setMinWidth("20em");
 
 
         createBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        createBtn.setEnabled(false);
+        letterTypeComboBox.addValueChangeListener(e -> validateForm());
+        seqNo.addValueChangeListener(e -> validateForm());
+        xslTypeComboBox.addValueChangeListener(e -> validateForm());
+        rendererTypeComboBox.addValueChangeListener(e -> validateForm());
+        validFlagComboBox.addValueChangeListener(e -> validateForm());
 
         letterSetUpGrid.setItems(query -> letterSetUpService.list(toSpringPageRequest(query)).stream());
+        letterSetUpGrid.addColumn(item -> item.getId().getLetterType()).setHeader("Letter Type");
+        letterSetUpGrid.addColumn(item -> item.getId().getSeqNo()).setHeader("Seq No");
         letterSetUpGrid.addColumn(LetterSetUpEntity::getXslType).setHeader("XSL");
         letterSetUpGrid.addColumn(LetterSetUpEntity::getRendererType).setHeader("Renderer");
         letterSetUpGrid.addColumn(LetterSetUpEntity::getValidFlag).setHeader("Action");
@@ -96,22 +103,32 @@ class LetterSetUpView extends VerticalLayout {
         getStyle().setOverflow(Style.Overflow.HIDDEN);
     }
     private void show() {
-        add(new ViewToolbar("Letter SetUp", ViewToolbar.group(letterType, seqNo, xslType, rendererType, actionType, createBtn)));
+        add(new ViewToolbar("Letter SetUp", ViewToolbar.group(letterTypeComboBox, seqNo, xslTypeComboBox, rendererTypeComboBox, validFlagComboBox, createBtn)));
         add(letterSetUpGrid);
     }
+    private void validateForm() {
+        createBtn.setEnabled(
+                letterTypeComboBox.getValue() != null
+                        && seqNo.getValue() != null
+                        && xslTypeComboBox.getValue() != null
+                        && rendererTypeComboBox.getValue() != null
+                        && validFlagComboBox.getValue() != null
+        );
+    }
+
 
     private void createLetterSetUp() {
         letterSetUpService.save(new LetterSetUpEntity(
-                new LetterSetUpKey(LetterType.getFromCode(letterType.getValue()), seqNo.getValue().intValue()),
-                Objects.requireNonNull(XslType.getFromCode(xslType.getValue())),
-                Objects.requireNonNull(RendererType.getFromCode(rendererType.getValue())),
-                Objects.requireNonNull(ValidFlag.getFromCode(actionType.getValue()))));
+                new LetterSetUpKey(letterTypeComboBox.getValue(), seqNo.getValue().intValue()),
+                xslTypeComboBox.getValue(),
+                rendererTypeComboBox.getValue(),
+                validFlagComboBox.getValue()));
         letterSetUpGrid.getDataProvider().refreshAll();
-        letterType.clear();
+        letterTypeComboBox.clear();
         seqNo.clear();
-        xslType.clear();
-        rendererType.clear();
-        actionType.clear();
+        xslTypeComboBox.clear();
+        rendererTypeComboBox.clear();
+        validFlagComboBox.clear();
         Notification.show("Letter SetUp added", 3000, Notification.Position.BOTTOM_END)
                 .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
