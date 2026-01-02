@@ -24,8 +24,6 @@ import org.masouras.model.mssql.schema.jpa.control.entity.enums.RendererType;
 import org.masouras.model.mssql.schema.jpa.control.entity.enums.ValidFlag;
 import org.masouras.model.mssql.schema.jpa.control.entity.enums.XslType;
 
-import java.util.Objects;
-
 import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRequest;
 
 @Route("")
@@ -46,11 +44,11 @@ class LetterSetUpView extends VerticalLayout {
 
     @PostConstruct
     private void init() {
-        load();
-        style();
-        show();
+        loadComponents();
+        styleComponents();
+        addComponents();
     }
-    private void load() {
+    private void loadComponents() {
         letterTypeComboBox.setPlaceholder("Enter Letter Type");
         letterTypeComboBox.setAriaLabel("Letter Type");
         letterTypeComboBox.setMinWidth("20em");
@@ -96,13 +94,13 @@ class LetterSetUpView extends VerticalLayout {
         letterSetUpGrid.setSizeFull();
         letterSetUpGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
     }
-    private void style() {
+    private void styleComponents() {
         setSizeFull();
         setPadding(false);
         setSpacing(false);
         getStyle().setOverflow(Style.Overflow.HIDDEN);
     }
-    private void show() {
+    private void addComponents() {
         add(new ViewToolbar("Letter SetUp", ViewToolbar.group(letterTypeComboBox, seqNo, xslTypeComboBox, rendererTypeComboBox, validFlagComboBox, createBtn)));
         add(letterSetUpGrid);
     }
