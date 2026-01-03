@@ -1,0 +1,95 @@
+package org.masouras.app.setup.ui;
+
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
+import org.masouras.model.mssql.schema.jpa.boundary.LetterSetUpService;
+import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpEntity;
+import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpKey;
+import org.masouras.model.mssql.schema.jpa.control.entity.enums.LetterType;
+import org.masouras.model.mssql.schema.jpa.control.entity.enums.RendererType;
+import org.masouras.model.mssql.schema.jpa.control.entity.enums.ValidFlag;
+import org.masouras.model.mssql.schema.jpa.control.entity.enums.XslType;
+
+
+public class LetterSetUpForm extends FormLayout {
+    private final Runnable onChangeRunPointer;
+    private final LetterSetUpService letterSetUpService;
+
+    private LetterSetUpEntity letterSetUpEntity;
+    private final ComboBox<LetterType> letterTypeComboBox = new ComboBox<>();
+    private final IntegerField seqNo = new IntegerField();
+    private final ComboBox<XslType> xslTypeComboBox = new ComboBox<>();
+    private final ComboBox<RendererType> rendererTypeComboBox = new ComboBox<>();
+    private final ComboBox<ValidFlag> validFlagComboBox = new ComboBox<>();
+
+    public LetterSetUpForm(Runnable onChangeRunPointer, LetterSetUpService letterSetUpService) {
+        this.onChangeRunPointer = onChangeRunPointer;
+        this.letterSetUpService = letterSetUpService;
+        init();
+    }
+    private void init() {
+        loadComponents();
+        add(letterTypeComboBox, seqNo, xslTypeComboBox, rendererTypeComboBox, validFlagComboBox,
+                new HorizontalLayout(
+                        new Button(new Icon(VaadinIcon.DISC), e -> saveEntity()),
+                        new Button("Cancel", e -> setEntity(null))));
+    }
+    private void loadComponents() {
+        letterTypeComboBox.setPlaceholder("Enter Letter Type");
+        letterTypeComboBox.setAriaLabel("Letter Type");
+        letterTypeComboBox.setMinWidth("20em");
+        letterTypeComboBox.setItems(LetterType.values());
+
+        seqNo.setPlaceholder("Enter Sequence Number");
+        seqNo.setAriaLabel("Sequence Number");
+        seqNo.setMin(1);
+        seqNo.setMax(999);
+
+        xslTypeComboBox.setPlaceholder("Enter XSL Type");
+        xslTypeComboBox.setAriaLabel("XSL Type");
+        xslTypeComboBox.setMinWidth("20em");
+        xslTypeComboBox.setItems(XslType.values());
+
+        rendererTypeComboBox.setPlaceholder("Enter Renderer Type");
+        rendererTypeComboBox.setAriaLabel("Renderer Type");
+        rendererTypeComboBox.setMinWidth("20em");
+        rendererTypeComboBox.setItems(RendererType.values());
+
+        validFlagComboBox.setPlaceholder("Enter Valid Flag");
+        validFlagComboBox.setAriaLabel("Valid Flag");
+        validFlagComboBox.setMinWidth("20em");
+        validFlagComboBox.setItems(ValidFlag.values());
+    }
+
+    public void setEntity(LetterSetUpEntity letterSetUpEntity) {
+        this.letterSetUpEntity = letterSetUpEntity;
+        if (letterSetUpEntity == null) {
+            setVisible(false);
+            return;
+        }
+        setEntityMain();
+    }
+    private void setEntityMain() {
+        letterTypeComboBox.setValue(this.letterSetUpEntity.getId().getLetterType());
+        seqNo.setValue(this.letterSetUpEntity.getId().getSeqNo());
+        xslTypeComboBox.setValue(this.letterSetUpEntity.getXslType());
+        rendererTypeComboBox.setValue(this.letterSetUpEntity.getRendererType());
+        validFlagComboBox.setValue(this.letterSetUpEntity.getValidFlag());
+        setVisible(true);
+    }
+
+    private void saveEntity() {
+        letterSetUpService.save(new LetterSetUpEntity(
+                new LetterSetUpKey(letterTypeComboBox.getValue(), seqNo.getValue()),
+                xslTypeComboBox.getValue(),
+                rendererTypeComboBox.getValue(),
+                validFlagComboBox.getValue()));
+        onChangeRunPointer.run();
+        setEntity(null);
+    }
+}

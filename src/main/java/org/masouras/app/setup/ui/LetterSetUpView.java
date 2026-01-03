@@ -8,7 +8,7 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -26,9 +26,9 @@ import org.masouras.model.mssql.schema.jpa.control.entity.enums.XslType;
 
 import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRequest;
 
-@Route("")
-@PageTitle("Letter SetUp")
-@Menu(order = 0, icon = "vaadin:clipboard-check", title = "Letter SetUp")
+//@Route("")
+//@PageTitle("Letter SetUp")
+//@Menu(order = 0, icon = "vaadin:envelopes", title = "Letter SetUp")
 @RequiredArgsConstructor
 class LetterSetUpView extends VerticalLayout {
     private final LetterSetUpService letterSetUpService;
@@ -37,7 +37,7 @@ class LetterSetUpView extends VerticalLayout {
     private final Button createBtn = new Button("Create", event -> createLetterSetUp());
 
     private final ComboBox<LetterType> letterTypeComboBox = new ComboBox<>();
-    private final NumberField seqNo = new NumberField();
+    private final IntegerField seqNo = new IntegerField();
     private final ComboBox<XslType> xslTypeComboBox = new ComboBox<>();
     private final ComboBox<RendererType> rendererTypeComboBox = new ComboBox<>();
     private final ComboBox<ValidFlag> validFlagComboBox = new ComboBox<>();
@@ -117,7 +117,7 @@ class LetterSetUpView extends VerticalLayout {
 
     private void createLetterSetUp() {
         letterSetUpService.save(new LetterSetUpEntity(
-                new LetterSetUpKey(letterTypeComboBox.getValue(), seqNo.getValue().intValue()),
+                new LetterSetUpKey(letterTypeComboBox.getValue(), seqNo.getValue()),
                 xslTypeComboBox.getValue(),
                 rendererTypeComboBox.getValue(),
                 validFlagComboBox.getValue()));
