@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.masouras.model.mssql.schema.jpa.boundary.LetterSetUpService;
 import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpEntity;
+import org.masouras.model.mssql.schema.qb.structure.DbField;
 
 import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRequest;
 
@@ -51,13 +52,19 @@ public class LetterSetUpCRUD extends VerticalLayout {
         return layout;
     }
     private void configureGrid() {
+        entityGrid.asSingleSelect();
+        entityGrid.setAriaLabel("Letter SetUp");
+        entityGrid.setEmptyStateText("You have no Letter SetUp yet");
+        entityGrid.setSizeFull();
+        entityGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+
         entityGrid.setItems(query -> letterSetUpService.list(toSpringPageRequest(query)).stream());
 
-        entityGrid.addColumn(letterSetUpEntity -> letterSetUpEntity.getId().getLetterType()).setHeader("Letter Type");
-        entityGrid.addColumn(letterSetUpEntity -> letterSetUpEntity.getId().getSeqNo()).setHeader("Seq No");
-        entityGrid.addColumn(LetterSetUpEntity::getXslType).setHeader("XSL");
-        entityGrid.addColumn(LetterSetUpEntity::getRendererType).setHeader("Renderer");
-        entityGrid.addColumn(LetterSetUpEntity::getValidFlag).setHeader("Action");
+        entityGrid.addColumn(letterSetUpEntity -> letterSetUpEntity.getId().getLetterType()).setHeader(DbField.LETTER_TYPE.asAlias());
+        entityGrid.addColumn(letterSetUpEntity -> letterSetUpEntity.getId().getSeqNo()).setHeader(DbField.SEQ_NO.asAlias());
+        entityGrid.addColumn(LetterSetUpEntity::getXslType).setHeader(DbField.XSL_TYPE.asAlias());
+        entityGrid.addColumn(LetterSetUpEntity::getRendererType).setHeader(DbField.RENDERER_TYPE.asAlias());
+        entityGrid.addColumn(LetterSetUpEntity::getValidFlag).setHeader(DbField.VALID_FLAG.asAlias());
 
         entityGrid.addColumn(new ComponentRenderer<>(letter -> new HorizontalLayout(
                 new Button(new Icon(VaadinIcon.EDIT), e -> editEntity(letter)),
@@ -65,10 +72,6 @@ public class LetterSetUpCRUD extends VerticalLayout {
             letterSetUpService.deleteById(letter.getId());
             updateList();
         })))).setHeader("Actions").setAutoWidth(true);
-
-        entityGrid.setEmptyStateText("You have no Letter SetUp yet");
-        entityGrid.setSizeFull();
-        entityGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
     }
     private void configureForm() {
         entityForm = new LetterSetUpForm(this::updateList, letterSetUpService);

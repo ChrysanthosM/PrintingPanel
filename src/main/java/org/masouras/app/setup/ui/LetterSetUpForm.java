@@ -14,6 +14,7 @@ import org.masouras.model.mssql.schema.jpa.control.entity.enums.LetterType;
 import org.masouras.model.mssql.schema.jpa.control.entity.enums.RendererType;
 import org.masouras.model.mssql.schema.jpa.control.entity.enums.ValidFlag;
 import org.masouras.model.mssql.schema.jpa.control.entity.enums.XslType;
+import org.masouras.model.mssql.schema.qb.structure.DbField;
 
 
 public class LetterSetUpForm extends FormLayout {
@@ -40,28 +41,28 @@ public class LetterSetUpForm extends FormLayout {
                         new Button("Cancel", e -> setEntity(null))));
     }
     private void loadComponents() {
-        letterTypeComboBox.setPlaceholder("Enter Letter Type");
-        letterTypeComboBox.setAriaLabel("Letter Type");
+        letterTypeComboBox.setPlaceholder("Enter " + DbField.LETTER_TYPE.asAlias());
+        letterTypeComboBox.setAriaLabel(DbField.LETTER_TYPE.asAlias());
         letterTypeComboBox.setMinWidth("20em");
         letterTypeComboBox.setItems(LetterType.values());
 
-        seqNo.setPlaceholder("Enter Sequence Number");
-        seqNo.setAriaLabel("Sequence Number");
+        seqNo.setPlaceholder("Enter " + DbField.SEQ_NO.asAlias());
+        seqNo.setAriaLabel(DbField.SEQ_NO.asAlias());
         seqNo.setMin(1);
         seqNo.setMax(999);
 
-        xslTypeComboBox.setPlaceholder("Enter XSL Type");
-        xslTypeComboBox.setAriaLabel("XSL Type");
+        xslTypeComboBox.setPlaceholder("Enter " + DbField.XSL_TYPE.asAlias());
+        xslTypeComboBox.setAriaLabel(DbField.XSL_TYPE.asAlias());
         xslTypeComboBox.setMinWidth("20em");
         xslTypeComboBox.setItems(XslType.values());
 
-        rendererTypeComboBox.setPlaceholder("Enter Renderer Type");
-        rendererTypeComboBox.setAriaLabel("Renderer Type");
+        rendererTypeComboBox.setPlaceholder("Enter " + DbField.RENDERER_TYPE.asAlias());
+        rendererTypeComboBox.setAriaLabel(DbField.RENDERER_TYPE.asAlias());
         rendererTypeComboBox.setMinWidth("20em");
         rendererTypeComboBox.setItems(RendererType.values());
 
-        validFlagComboBox.setPlaceholder("Enter Valid Flag");
-        validFlagComboBox.setAriaLabel("Valid Flag");
+        validFlagComboBox.setPlaceholder("Enter " + DbField.VALID_FLAG.asAlias());
+        validFlagComboBox.setAriaLabel(DbField.VALID_FLAG.asAlias());
         validFlagComboBox.setMinWidth("20em");
         validFlagComboBox.setItems(ValidFlag.values());
     }
