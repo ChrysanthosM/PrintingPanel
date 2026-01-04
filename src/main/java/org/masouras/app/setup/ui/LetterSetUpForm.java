@@ -73,14 +73,22 @@ public class LetterSetUpForm extends FormLayout {
             return;
         }
         setEntityMain();
+        setVisible(true);
     }
     private void setEntityMain() {
+        if (this.letterSetUpEntity.getId() == null) {
+            letterTypeComboBox.clear();
+            seqNo.clear();
+            xslTypeComboBox.clear();
+            rendererTypeComboBox.clear();
+            validFlagComboBox.clear();
+            return;
+        }
         letterTypeComboBox.setValue(this.letterSetUpEntity.getId().getLetterType());
         seqNo.setValue(this.letterSetUpEntity.getId().getSeqNo());
         xslTypeComboBox.setValue(this.letterSetUpEntity.getXslType());
         rendererTypeComboBox.setValue(this.letterSetUpEntity.getRendererType());
         validFlagComboBox.setValue(this.letterSetUpEntity.getValidFlag());
-        setVisible(true);
     }
 
     private void saveEntity() {

@@ -31,22 +31,25 @@ public class LetterSetUpCRUD extends VerticalLayout {
 
     @PostConstruct
     private void init() {
-        setSizeFull();
+        setStyle();
         configureGrid();
         configureForm();
 
-        add(new Button(new Icon(VaadinIcon.FILE_ADD), e -> addEntity()), getHorizontalLayout());
+        add(new Button(new Icon(VaadinIcon.FILE_ADD), e -> addEntity()), getFormLayout());
         updateList();
     }
-
-    private @NonNull HorizontalLayout getHorizontalLayout() {
-        HorizontalLayout layout = new HorizontalLayout(entityGrid, entityForm);
+    private void setStyle() {
+        setSizeFull();
+        setPadding(false);
+        setSpacing(false);
+    }
+    private @NonNull VerticalLayout getFormLayout() {
+        VerticalLayout layout = new VerticalLayout(entityGrid, entityForm);
         layout.setFlexGrow(2, entityGrid);
         layout.setFlexGrow(1, entityForm);
         layout.setSizeFull();
         return layout;
     }
-
     private void configureGrid() {
         entityGrid.setItems(query -> letterSetUpService.list(toSpringPageRequest(query)).stream());
 
@@ -67,7 +70,6 @@ public class LetterSetUpCRUD extends VerticalLayout {
         entityGrid.setSizeFull();
         entityGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
     }
-
     private void configureForm() {
         entityForm = new LetterSetUpForm(this::updateList, letterSetUpService);
         entityForm.setVisible(false);
@@ -80,9 +82,7 @@ public class LetterSetUpCRUD extends VerticalLayout {
     private void addEntity() {
         entityForm.setEntity(new LetterSetUpEntity());
     }
-
     private void editEntity(LetterSetUpEntity letterSetUpEntity) {
         entityForm.setEntity(letterSetUpEntity);
     }
-
 }
