@@ -5,6 +5,8 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import org.masouras.model.mssql.schema.jpa.boundary.LetterSetUpService;
@@ -71,6 +73,7 @@ public class LetterSetUpForm extends FormLayout {
         this.letterSetUpEntity = letterSetUpEntity;
         if (letterSetUpEntity == null) {
             setVisible(false);
+            clearComponents();
             return;
         }
         setEntityMain();
@@ -78,11 +81,7 @@ public class LetterSetUpForm extends FormLayout {
     }
     private void setEntityMain() {
         if (this.letterSetUpEntity.getId() == null) {
-            letterTypeComboBox.clear();
-            seqNo.clear();
-            xslTypeComboBox.clear();
-            rendererTypeComboBox.clear();
-            validFlagComboBox.clear();
+            clearComponents();
             return;
         }
         letterTypeComboBox.setValue(this.letterSetUpEntity.getId().getLetterType());
@@ -100,5 +99,15 @@ public class LetterSetUpForm extends FormLayout {
                 validFlagComboBox.getValue()));
         onChangeRunPointer.run();
         setEntity(null);
+        Notification.show("Letter SetUp added", 3000, Notification.Position.BOTTOM_END)
+                .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+    }
+
+    private void clearComponents() {
+        letterTypeComboBox.clear();
+        seqNo.clear();
+        xslTypeComboBox.clear();
+        rendererTypeComboBox.clear();
+        validFlagComboBox.clear();
     }
 }

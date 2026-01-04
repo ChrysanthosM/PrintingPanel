@@ -14,21 +14,21 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
-import org.masouras.model.mssql.schema.jpa.boundary.LetterSetUpService;
-import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpEntity;
+import org.masouras.model.mssql.schema.jpa.boundary.PrintingSetUpService;
+import org.masouras.model.mssql.schema.jpa.control.entity.PrintingSetUpEntity;
 import org.masouras.model.mssql.schema.qb.structure.DbField;
 
 import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRequest;
 
-@Route("")
-@PageTitle("Letter SetUp")
-@Menu(order = 0, icon = "vaadin:envelopes", title = "Letter SetUp")
+@Route("printingSetUp")
+@PageTitle("Printing SetUp")
+@Menu(order = 1, icon = "vaadin:cube", title = "Printing SetUp")
 @RequiredArgsConstructor
-public class LetterSetUpCRUD extends VerticalLayout {
-    private final LetterSetUpService letterSetUpService;
-    private final Grid<LetterSetUpEntity> entityGrid = new Grid<>();
+public class PrintingSetUpCRUD extends VerticalLayout {
+    private final PrintingSetUpService printingSetUpService;
+    private final Grid<PrintingSetUpEntity> entityGrid = new Grid<>();
 
-    private LetterSetUpForm entityForm;
+    private PrintingSetUpForm entityForm;
 
     @PostConstruct
     private void init() {
@@ -53,39 +53,38 @@ public class LetterSetUpCRUD extends VerticalLayout {
     }
     private void configureGrid() {
         entityGrid.asSingleSelect();
-        entityGrid.setAriaLabel("Letter SetUp");
-        entityGrid.setEmptyStateText("You have no Letter SetUp yet");
+        entityGrid.setAriaLabel("Printing SetUp");
+        entityGrid.setEmptyStateText("You have no Printing SetUp yet");
         entityGrid.setSizeFull();
         entityGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
-        entityGrid.setItems(query -> letterSetUpService.list(toSpringPageRequest(query)).stream());
+        entityGrid.setItems(query -> printingSetUpService.list(toSpringPageRequest(query)).stream());
 
-        entityGrid.addColumn(letterSetUpEntity -> letterSetUpEntity.getId().getLetterType()).setHeader(DbField.LETTER_TYPE.asAlias());
-        entityGrid.addColumn(letterSetUpEntity -> letterSetUpEntity.getId().getSeqNo()).setHeader(DbField.SEQ_NO.asAlias());
-        entityGrid.addColumn(LetterSetUpEntity::getXslType).setHeader(DbField.XSL_TYPE.asAlias());
-        entityGrid.addColumn(LetterSetUpEntity::getRendererType).setHeader(DbField.RENDERER_TYPE.asAlias());
-        entityGrid.addColumn(LetterSetUpEntity::getValidFlag).setHeader(DbField.VALID_FLAG.asAlias());
+        entityGrid.addColumn(printingSetUpEntity -> printingSetUpEntity.getId().getActivityType()).setHeader(DbField.ACTIVITY_TYPE.asAlias());
+        entityGrid.addColumn(printingSetUpEntity -> printingSetUpEntity.getId().getContentType()).setHeader(DbField.CONTENT_TYPE.asAlias());
+        entityGrid.addColumn(printingSetUpEntity -> printingSetUpEntity.getId().getSeqNo()).setHeader(DbField.SEQ_NO.asAlias());
+        entityGrid.addColumn(PrintingSetUpEntity::getLetterType).setHeader(DbField.LETTER_TYPE.asAlias());
 
         entityGrid.addColumn(new ComponentRenderer<>(entity -> new HorizontalLayout(
                 new Button(new Icon(VaadinIcon.EDIT), e -> editEntity(entity)),
                 new Button(new Icon(VaadinIcon.TRASH), e -> {
-            letterSetUpService.deleteById(entity.getId());
+            printingSetUpService.deleteById(entity.getId());
             updateList();
         })))).setHeader("Actions").setAutoWidth(true);
     }
     private void configureForm() {
-        entityForm = new LetterSetUpForm(this::updateList, letterSetUpService);
+        entityForm = new PrintingSetUpForm(this::updateList, printingSetUpService);
         entityForm.setVisible(false);
     }
 
     private void updateList() {
-        entityGrid.setItems(letterSetUpService.findAll());
+        entityGrid.setItems(printingSetUpService.findAll());
     }
 
     private void addEntity() {
-        entityForm.setEntity(new LetterSetUpEntity());
+        entityForm.setEntity(new PrintingSetUpEntity());
     }
-    private void editEntity(LetterSetUpEntity letterSetUpEntity) {
-        entityForm.setEntity(letterSetUpEntity);
+    private void editEntity(PrintingSetUpEntity entity) {
+        entityForm.setEntity(entity);
     }
 }
