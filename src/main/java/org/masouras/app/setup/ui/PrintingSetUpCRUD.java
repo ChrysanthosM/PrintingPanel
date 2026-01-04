@@ -22,7 +22,7 @@ import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRe
 
 @Route("printingSetUp")
 @PageTitle("Printing SetUp")
-@Menu(order = 1, icon = "vaadin:cube", title = "Printing SetUp")
+@Menu(order = 2, icon = "vaadin:cube", title = "Printing SetUp")
 @RequiredArgsConstructor
 public class PrintingSetUpCRUD extends VerticalLayout {
     private final PrintingSetUpService printingSetUpService;

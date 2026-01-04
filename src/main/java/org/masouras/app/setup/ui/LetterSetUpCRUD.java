@@ -20,9 +20,9 @@ import org.masouras.model.mssql.schema.qb.structure.DbField;
 
 import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRequest;
 
-@Route("")
+@Route("letterSetUp")
 @PageTitle("Letter SetUp")
-@Menu(order = 0, icon = "vaadin:envelopes", title = "Letter SetUp")
+@Menu(order = 1, icon = "vaadin:envelopes", title = "Letter SetUp")
 @RequiredArgsConstructor
 public class LetterSetUpCRUD extends VerticalLayout {
     private final LetterSetUpService letterSetUpService;

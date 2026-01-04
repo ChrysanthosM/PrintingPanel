@@ -2,6 +2,7 @@ package org.masouras.app.base.ui;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -29,7 +30,7 @@ public final class MainLayout extends AppLayout {
         appLogo.setSize("48px");
         appLogo.setColor("blue");
 
-        var appName = new Span("Printing Maintenance");
+        var appName = new Span(new H2("Menu"));
         appName.getStyle().setFontWeight(Style.FontWeight.BOLD);
 
         var header = new VerticalLayout(appLogo, appName);
