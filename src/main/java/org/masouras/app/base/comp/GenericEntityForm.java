@@ -9,10 +9,14 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.BeanValidator;
+import jakarta.annotation.Nullable;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EmbeddedId;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FieldFactory;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
@@ -23,19 +27,22 @@ import java.util.stream.Collectors;
 
 public abstract class GenericEntityForm<T> extends FormLayout {
     private final Class<T> entityClass;
-    protected final Binder<T> binder;
-    protected T entity;
+    private final Binder<T> binder;
+
+    private final Span validationStatus = new Span();
 
     private final Map<Field, Component> fieldComponents = new HashMap<>();
     private final List<Field> keyFields = new ArrayList<>();
 
-    private final Span validationStatus = new Span();
+    private T entity;
+    @Setter private Runnable onSaveCallback;
+
 
     public GenericEntityForm(Class<T> entityClass) {
         this.entityClass = entityClass;
         this.binder = new Binder<>(this.entityClass);
-        init();
     }
+    @PostConstruct
     private void init() {
         addComponents();
         addStyle();
@@ -157,7 +164,7 @@ public abstract class GenericEntityForm<T> extends FormLayout {
         }
     }
 
-    public void setEntity(T entity) {
+    protected void setEntity(T entity) {
         clearFields();
         this.entity = entity;
         if (entity == null) {
@@ -224,7 +231,7 @@ public abstract class GenericEntityForm<T> extends FormLayout {
         }
     }
 
-    public void saveEntity() {
+    private void saveEntity() {
         if (!binder.validate().isOk()) {
             Notification.show("Please fix the errors", 3000, Notification.Position.MIDDLE);
             return;
@@ -236,8 +243,16 @@ public abstract class GenericEntityForm<T> extends FormLayout {
     }
 
     protected abstract void onSave(T entity);
+    protected void onSaveMain(@Nullable String NotificationMessage) {
+        if (this.onSaveCallback != null) this.onSaveCallback.run();
 
-    public void clearFields() {
+        if (StringUtils.isNotBlank(NotificationMessage)) {
+            Notification.show(NotificationMessage, 3000, Notification.Position.BOTTOM_END)
+                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        }
+    }
+
+    private void clearFields() {
         fieldComponents.values().stream()
                 .filter(component -> component instanceof HasValue<?, ?>)
                 .forEach(component -> ((HasValue<?, ?>) component).clear());
