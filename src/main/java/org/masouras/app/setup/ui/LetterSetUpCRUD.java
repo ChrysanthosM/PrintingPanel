@@ -8,25 +8,21 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.masouras.app.base.comp.GenericCrudView;
 import org.masouras.model.mssql.schema.jpa.boundary.LetterSetUpService;
 import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpEntity;
+import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpKey;
 import org.masouras.model.mssql.schema.qb.structure.DbField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Route("letterSetUp")
 @PageTitle("Letter SetUp")
 @Menu(order = 1, icon = "vaadin:envelopes", title = "Letter SetUp")
 @UIScope
 @Component
-public class LetterSetUpCRUD extends GenericCrudView<LetterSetUpEntity> {
-    private final LetterSetUpService service;
+public class LetterSetUpCRUD extends GenericCrudView<LetterSetUpEntity, LetterSetUpKey> {
 
     @Autowired
     public LetterSetUpCRUD(LetterSetUpService service, LetterSetUpForm form) {
-        super(form);
-        form.setOnSaveCallback(this::updateList);
-        this.service = service;
+        super(LetterSetUpEntity.class, form, service);
     }
 
     @Override
@@ -36,20 +32,5 @@ public class LetterSetUpCRUD extends GenericCrudView<LetterSetUpEntity> {
         grid.addColumn(LetterSetUpEntity::getXslType).setHeader(DbField.OPTION_TYPE.asAlias());
         grid.addColumn(LetterSetUpEntity::getRendererType).setHeader(DbField.RENDERER_TYPE.asAlias());
         grid.addColumn(LetterSetUpEntity::getValidFlag).setHeader(DbField.VALID_FLAG.asAlias());
-    }
-
-    @Override
-    protected List<LetterSetUpEntity> fetchItems() {
-        return service.findAll();
-    }
-
-    @Override
-    protected void deleteItem(LetterSetUpEntity entity) {
-        service.deleteById(entity.getId());
-    }
-
-    @Override
-    protected LetterSetUpEntity createNewEntity() {
-        return new LetterSetUpEntity();
     }
 }

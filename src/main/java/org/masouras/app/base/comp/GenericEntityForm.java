@@ -16,8 +16,10 @@ import com.vaadin.flow.data.validator.BeanValidator;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EmbeddedId;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FieldFactory;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 
@@ -25,29 +27,27 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class GenericEntityForm<T> extends FormLayout {
+@RequiredArgsConstructor
+public abstract class GenericEntityForm<T, ID> extends FormLayout {
     private final Class<T> entityClass;
-    private final Binder<T> binder;
+    private final GenericCrudService<T, ID> genericCrudService;
 
+    private Binder<T> binder;
     private final Span validationStatus = new Span();
 
     private final Map<Field, Component> fieldComponents = new HashMap<>();
     private final List<Field> keyFields = new ArrayList<>();
-
     private T entity;
     @Setter private Runnable onSaveCallback;
 
 
-    public GenericEntityForm(Class<T> entityClass) {
-        this.entityClass = entityClass;
-        this.binder = new Binder<>(this.entityClass);
-    }
     @PostConstruct
     private void init() {
         addComponents();
         addStyle();
     }
     private void addComponents() {
+        this.binder = new Binder<>(this.entityClass);
         binder.setStatusLabel(validationStatus);
 
         buildForm(entityClass);
@@ -178,6 +178,11 @@ public abstract class GenericEntityForm<T> extends FormLayout {
         updateKeyFieldState(entity);
         setVisible(true);
     }
+    private void clearFields() {
+        fieldComponents.values().stream()
+                .filter(component -> component instanceof HasValue<?, ?>)
+                .forEach(component -> ((HasValue<?, ?>) component).clear());
+    }
     private void initializeEmbeddedId(T entity) {
         Arrays.stream(entity.getClass().getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(EmbeddedId.class))
@@ -237,24 +242,19 @@ public abstract class GenericEntityForm<T> extends FormLayout {
             return;
         }
         if (binder.writeBeanIfValid(entity)) {
-            onSave(entity);
+            saveEntityMain(entity);
             setEntity(null);
         }
     }
-
-    protected abstract void onSave(T entity);
-    protected void onSaveMain(@Nullable String NotificationMessage) {
+    private void saveEntityMain(T entity) {
+        genericCrudService.save(entity);
         if (this.onSaveCallback != null) this.onSaveCallback.run();
-
-        if (StringUtils.isNotBlank(NotificationMessage)) {
-            Notification.show(NotificationMessage, 3000, Notification.Position.BOTTOM_END)
-                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-        }
+        showNotificationMessage(getOnSaveGetNotificationMessage());
     }
-
-    private void clearFields() {
-        fieldComponents.values().stream()
-                .filter(component -> component instanceof HasValue<?, ?>)
-                .forEach(component -> ((HasValue<?, ?>) component).clear());
+    private void showNotificationMessage(@Nullable String notificationMessage) {
+        if (StringUtils.isBlank(notificationMessage)) return;
+        Notification.show(notificationMessage, 3000, Notification.Position.BOTTOM_END)
+                .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
+    protected abstract @Nullable String getOnSaveGetNotificationMessage();
 }
