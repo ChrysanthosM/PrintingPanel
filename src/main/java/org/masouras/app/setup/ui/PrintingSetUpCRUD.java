@@ -8,6 +8,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.masouras.app.base.comp.GenericCrudView;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingSetUpService;
 import org.masouras.model.mssql.schema.jpa.control.entity.PrintingSetUpEntity;
+import org.masouras.model.mssql.schema.qb.structure.DbField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,10 +31,10 @@ public class PrintingSetUpCRUD extends GenericCrudView<PrintingSetUpEntity> {
 
     @Override
     protected void addGridColumns(Grid<PrintingSetUpEntity> grid) {
-        grid.addColumn(e -> e.getId().getActivityType()).setHeader("Activity Type");
-        grid.addColumn(e -> e.getId().getContentType()).setHeader("Content Type");
-        grid.addColumn(e -> e.getId().getSeqNo()).setHeader("Seq No");
-        grid.addColumn(PrintingSetUpEntity::getLetterType).setHeader("Letter Type");
+        grid.addColumn(e -> e.getId().getActivityType()).setHeader(DbField.ACTIVITY_TYPE.asAlias());
+        grid.addColumn(e -> e.getId().getContentType()).setHeader(DbField.CONTENT_TYPE.asAlias());
+        grid.addColumn(e -> e.getId().getSeqNo()).setHeader(DbField.SEQ_NO.asAlias());
+        grid.addColumn(PrintingSetUpEntity::getLetterType).setHeader(DbField.LETTER_TYPE.asAlias());
     }
 
     @Override

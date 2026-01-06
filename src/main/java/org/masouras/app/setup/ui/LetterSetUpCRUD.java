@@ -8,6 +8,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.masouras.app.base.comp.GenericCrudView;
 import org.masouras.model.mssql.schema.jpa.boundary.LetterSetUpService;
 import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpEntity;
+import org.masouras.model.mssql.schema.qb.structure.DbField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,11 +31,11 @@ public class LetterSetUpCRUD extends GenericCrudView<LetterSetUpEntity> {
 
     @Override
     protected void addGridColumns(Grid<LetterSetUpEntity> grid) {
-        grid.addColumn(e -> e.getId().getLetterType()).setHeader("Letter Type");
-        grid.addColumn(e -> e.getId().getSeqNo()).setHeader("Seq No");
-        grid.addColumn(LetterSetUpEntity::getXslType).setHeader("XSL Type");
-        grid.addColumn(LetterSetUpEntity::getRendererType).setHeader("Renderer");
-        grid.addColumn(LetterSetUpEntity::getValidFlag).setHeader("Valid");
+        grid.addColumn(e -> e.getId().getLetterType()).setHeader(DbField.LETTER_TYPE.asAlias());
+        grid.addColumn(e -> e.getId().getSeqNo()).setHeader(DbField.SEQ_NO.asAlias());
+        grid.addColumn(LetterSetUpEntity::getXslType).setHeader(DbField.OPTION_TYPE.asAlias());
+        grid.addColumn(LetterSetUpEntity::getRendererType).setHeader(DbField.RENDERER_TYPE.asAlias());
+        grid.addColumn(LetterSetUpEntity::getValidFlag).setHeader(DbField.VALID_FLAG.asAlias());
     }
 
     @Override
