@@ -1,90 +1,54 @@
 package org.masouras.app.setup.ui;
 
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
+import com.vaadin.flow.spring.annotation.UIScope;
+import org.masouras.app.base.comp.GenericCrudView;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingSetUpService;
 import org.masouras.model.mssql.schema.jpa.control.entity.PrintingSetUpEntity;
-import org.masouras.model.mssql.schema.qb.structure.DbField;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRequest;
+import java.util.List;
 
 @Route("printingSetUp")
 @PageTitle("Printing SetUp")
 @Menu(order = 2, icon = "vaadin:cube", title = "Printing SetUp")
-@RequiredArgsConstructor
-public class PrintingSetUpCRUD extends VerticalLayout {
-    private final PrintingSetUpService printingSetUpService;
-    private final Grid<PrintingSetUpEntity> entityGrid = new Grid<>();
+@UIScope
+@Component
+public class PrintingSetUpCRUD extends GenericCrudView<PrintingSetUpEntity> {
+    private final PrintingSetUpService service;
 
-    private PrintingSetUpForm entityForm;
-
-    @PostConstruct
-    private void init() {
-        setStyle();
-        configureGrid();
-        configureForm();
-
-        add(new Button(new Icon(VaadinIcon.FILE_ADD), e -> addEntity()), getFormLayout());
-        updateList();
-    }
-    private void setStyle() {
-        setSizeFull();
-        setPadding(false);
-        setSpacing(false);
-    }
-    private @NonNull VerticalLayout getFormLayout() {
-        VerticalLayout layout = new VerticalLayout(entityGrid, entityForm);
-        layout.setFlexGrow(2, entityGrid);
-        layout.setFlexGrow(1, entityForm);
-        layout.setSizeFull();
-        return layout;
-    }
-    private void configureGrid() {
-        entityGrid.asSingleSelect();
-        entityGrid.setAriaLabel("Printing SetUp");
-        entityGrid.setEmptyStateText("You have no Printing SetUp yet");
-        entityGrid.setSizeFull();
-        entityGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-
-        entityGrid.setItems(query -> printingSetUpService.list(toSpringPageRequest(query)).stream());
-
-        entityGrid.addColumn(printingSetUpEntity -> printingSetUpEntity.getId().getActivityType()).setHeader(DbField.ACTIVITY_TYPE.asAlias());
-        entityGrid.addColumn(printingSetUpEntity -> printingSetUpEntity.getId().getContentType()).setHeader(DbField.CONTENT_TYPE.asAlias());
-        entityGrid.addColumn(printingSetUpEntity -> printingSetUpEntity.getId().getSeqNo()).setHeader(DbField.SEQ_NO.asAlias());
-        entityGrid.addColumn(PrintingSetUpEntity::getLetterType).setHeader(DbField.LETTER_TYPE.asAlias());
-
-        entityGrid.addColumn(new ComponentRenderer<>(entity -> new HorizontalLayout(
-                new Button(new Icon(VaadinIcon.EDIT), e -> editEntity(entity)),
-                new Button(new Icon(VaadinIcon.TRASH), e -> {
-            printingSetUpService.deleteById(entity.getId());
-            updateList();
-        })))).setHeader("Actions").setAutoWidth(true);
-    }
-    private void configureForm() {
-        entityForm = new PrintingSetUpForm(printingSetUpService, this::updateList);
-        entityForm.setVisible(false);
+    @Autowired
+    public PrintingSetUpCRUD(PrintingSetUpService service, PrintingSetUpForm form) {
+        super(form);
+        form.setOnSaveCallback(this::updateList);
+        this.service = service;
     }
 
-    private void updateList() {
-        entityGrid.setItems(printingSetUpService.findAll());
+    @Override
+    protected void addGridColumns(Grid<PrintingSetUpEntity> grid) {
+        grid.addColumn(e -> e.getId().getActivityType()).setHeader("Activity Type");
+        grid.addColumn(e -> e.getId().getContentType()).setHeader("Content Type");
+        grid.addColumn(e -> e.getId().getSeqNo()).setHeader("Seq No");
+        grid.addColumn(PrintingSetUpEntity::getLetterType).setHeader("Letter Type");
     }
 
-    private void addEntity() {
-        entityForm.setEntity(new PrintingSetUpEntity());
+    @Override
+    protected List<PrintingSetUpEntity> fetchItems() {
+        return service.findAll();
     }
-    private void editEntity(PrintingSetUpEntity entity) {
-        entityForm.setEntity(entity);
+
+    @Override
+    protected void deleteItem(PrintingSetUpEntity entity) {
+        service.deleteById(entity.getId());
+    }
+
+    @Override
+    protected PrintingSetUpEntity createNewEntity() {
+        return new PrintingSetUpEntity();
     }
 }
+
