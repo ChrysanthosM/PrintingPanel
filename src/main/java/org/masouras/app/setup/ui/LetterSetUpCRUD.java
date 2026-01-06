@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.masouras.model.mssql.schema.jpa.boundary.LetterSetUpService;
 import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpEntity;
-import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpKey;
 import org.masouras.model.mssql.schema.qb.structure.DbField;
 
 import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRequest;

@@ -11,6 +11,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.BeanValidator;
 import jakarta.persistence.EmbeddedId;
 import org.apache.commons.lang3.StringUtils;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FieldFactory;
@@ -117,26 +118,26 @@ public abstract class GenericEntityForm<T> extends FormLayout {
         bindField(field, component, formField);
     }
     @SuppressWarnings("unchecked")
-    private void buildEmbeddedIdField(Field embeddedField, Field keyField, Component component, FormField meta) {
+    private void buildEmbeddedIdField(Field embeddedField, Field keyField, Component component, FormField formField) {
         String propertyPath = embeddedField.getName() + "." + keyField.getName();
         if (component instanceof HasValue<?, ?> hv) {
-            Binder.BindingBuilder<T, Object> builder = getBindingBuilderRequired(binder.forField((HasValue<?, Object>) hv), meta);
+            Binder.BindingBuilder<T, Object> builder = getBindingBuilder(binder.forField((HasValue<?, Object>) hv), formField, propertyPath);
             builder.bind(propertyPath);
         }
     }
     @SuppressWarnings("unchecked")
-    private void bindField(Field field, Component component, FormField meta) {
+    private void bindField(Field field, Component component, FormField formField) {
         field.setAccessible(true);
         if (component instanceof HasValue<?, ?> hv) {
-            Binder.BindingBuilder<T, Object> builder = getBindingBuilderRequired(binder.forField((HasValue<?, Object>) hv), meta);
+            Binder.BindingBuilder<T, Object> builder = getBindingBuilder(binder.forField((HasValue<?, Object>) hv), formField, field.getName());
             builder.bind(e -> getFieldValue(field, e), (e, v) -> setFieldValue(field, e, v));
         }
     }
-    private Binder.BindingBuilder<T, Object> getBindingBuilderRequired(Binder.BindingBuilder<T, Object> binder, FormField meta) {
+    private Binder.BindingBuilder<T, Object> getBindingBuilder(Binder.BindingBuilder<T, Object> binder, FormField formField, String field) {
         Binder.BindingBuilder<T, Object> builder = binder;
-        if (meta.required()) {
-            builder = builder.asRequired(meta.label() + " is required");
-        }
+        if (formField.required()) builder = builder.asRequired(formField.label() + " is required");
+        // 2. Hibernate Validator support
+        builder = builder.withValidator(new BeanValidator(entityClass, field));
         return builder;
     }
 
