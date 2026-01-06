@@ -6,7 +6,9 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +43,12 @@ public abstract class GenericCrudView<T> extends VerticalLayout {
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.asSingleSelect().addValueChangeListener(e -> editEntity(e.getValue()));
         addGridColumns(grid);
+        grid.addColumn(new ComponentRenderer<>(entity -> new HorizontalLayout(
+                new Button(new Icon(VaadinIcon.EDIT), e -> editEntity(entity)),
+                new Button(new Icon(VaadinIcon.TRASH), e -> {
+                    deleteItem(entity);
+                    updateList();
+                })))).setHeader("Actions").setAutoWidth(true);
     }
 
     private void configureForm() {
