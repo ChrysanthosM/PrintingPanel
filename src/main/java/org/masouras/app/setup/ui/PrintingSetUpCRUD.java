@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingSetUpService;
 import org.masouras.model.mssql.schema.jpa.control.entity.PrintingSetUpEntity;
+import org.masouras.model.mssql.schema.jpa.control.entity.PrintingSetUpKey;
 import org.masouras.model.mssql.schema.qb.structure.DbField;
 
 import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRequest;
@@ -73,7 +74,7 @@ public class PrintingSetUpCRUD extends VerticalLayout {
         })))).setHeader("Actions").setAutoWidth(true);
     }
     private void configureForm() {
-        entityForm = new PrintingSetUpForm(this::updateList, printingSetUpService);
+        entityForm = new PrintingSetUpForm(printingSetUpService, this::updateList);
         entityForm.setVisible(false);
     }
 

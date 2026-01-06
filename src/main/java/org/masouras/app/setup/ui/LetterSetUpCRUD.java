@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.masouras.model.mssql.schema.jpa.boundary.LetterSetUpService;
 import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpEntity;
+import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpKey;
 import org.masouras.model.mssql.schema.qb.structure.DbField;
 
 import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRequest;
@@ -74,7 +75,7 @@ public class LetterSetUpCRUD extends VerticalLayout {
         })))).setHeader("Actions").setAutoWidth(true);
     }
     private void configureForm() {
-        entityForm = new LetterSetUpForm(this::updateList, letterSetUpService);
+        entityForm = new LetterSetUpForm(letterSetUpService, this::updateList);
         entityForm.setVisible(false);
     }
 
@@ -84,6 +85,7 @@ public class LetterSetUpCRUD extends VerticalLayout {
 
     private void addEntity() {
         entityForm.setEntity(new LetterSetUpEntity());
+
     }
     private void editEntity(LetterSetUpEntity letterSetUpEntity) {
         entityForm.setEntity(letterSetUpEntity);
