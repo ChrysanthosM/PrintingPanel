@@ -24,13 +24,13 @@ public class LetterSetUpCRUD extends GenericCrudView<LetterSetUpEntity, LetterSe
     public LetterSetUpCRUD(LetterSetUpService service, LetterSetUpForm form) {
         super(LetterSetUpEntity.class, form, service);
     }
-
-    @Override
-    protected void addGridColumns(Grid<LetterSetUpEntity> grid) {
-        grid.addColumn(e -> e.getId().getLetterType()).setHeader(DbField.LETTER_TYPE.asAlias());
-        grid.addColumn(e -> e.getId().getSeqNo()).setHeader(DbField.SEQ_NO.asAlias());
-        grid.addColumn(LetterSetUpEntity::getXslType).setHeader(DbField.OPTION_TYPE.asAlias());
-        grid.addColumn(LetterSetUpEntity::getRendererType).setHeader(DbField.RENDERER_TYPE.asAlias());
-        grid.addColumn(LetterSetUpEntity::getValidFlag).setHeader(DbField.VALID_FLAG.asAlias());
-    }
+//
+//    @Override
+//    protected void addGridColumns(Grid<LetterSetUpEntity> grid) {
+//        grid.addColumn(e -> e.getId().getLetterType()).setHeader(DbField.LETTER_TYPE.asAlias());
+//        grid.addColumn(e -> e.getId().getSeqNo()).setHeader(DbField.SEQ_NO.asAlias());
+//        grid.addColumn(LetterSetUpEntity::getXslType).setHeader(DbField.OPTION_TYPE.asAlias());
+//        grid.addColumn(LetterSetUpEntity::getRendererType).setHeader(DbField.RENDERER_TYPE.asAlias());
+//        grid.addColumn(LetterSetUpEntity::getValidFlag).setHeader(DbField.VALID_FLAG.asAlias());
+//    }
 }

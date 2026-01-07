@@ -24,13 +24,13 @@ public class PrintingSetUpCRUD extends GenericCrudView<PrintingSetUpEntity, Prin
     public PrintingSetUpCRUD(PrintingSetUpService service, PrintingSetUpForm form) {
         super(PrintingSetUpEntity.class, form, service);
     }
-
-    @Override
-    protected void addGridColumns(Grid<PrintingSetUpEntity> grid) {
-        grid.addColumn(e -> e.getId().getActivityType()).setHeader(DbField.ACTIVITY_TYPE.asAlias());
-        grid.addColumn(e -> e.getId().getContentType()).setHeader(DbField.CONTENT_TYPE.asAlias());
-        grid.addColumn(e -> e.getId().getSeqNo()).setHeader(DbField.SEQ_NO.asAlias());
-        grid.addColumn(PrintingSetUpEntity::getLetterType).setHeader(DbField.LETTER_TYPE.asAlias());
-    }
+//
+//    @Override
+//    protected void addGridColumns(Grid<PrintingSetUpEntity> grid) {
+//        grid.addColumn(e -> e.getId().getActivityType()).setHeader(DbField.ACTIVITY_TYPE.asAlias());
+//        grid.addColumn(e -> e.getId().getContentType()).setHeader(DbField.CONTENT_TYPE.asAlias());
+//        grid.addColumn(e -> e.getId().getSeqNo()).setHeader(DbField.SEQ_NO.asAlias());
+//        grid.addColumn(PrintingSetUpEntity::getLetterType).setHeader(DbField.LETTER_TYPE.asAlias());
+//    }
 }
 

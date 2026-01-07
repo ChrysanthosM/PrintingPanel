@@ -12,7 +12,10 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
+import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -44,6 +47,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     }
     private void configureGrid() {
         grid.setSizeFull();
+        grid.setEmptyStateText("No items found");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.asSingleSelect().addValueChangeListener(e -> editEntity(e.getValue()));
         addGridColumns(grid);
@@ -54,8 +58,22 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
                     updateList();
                 })))).setHeader("Actions").setAutoWidth(true);
     }
-    protected abstract void addGridColumns(Grid<T> grid);
-
+    private void addGridColumns(Grid<T> grid) {
+        Arrays.stream(entityClass.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(FormField.class))
+                .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
+                .forEach(field -> {
+                    field.setAccessible(true);
+                    FormField formField = field.getAnnotation(FormField.class);
+                    grid.addColumn(entity -> {
+                        try {
+                            return field.get(entity);
+                        } catch (IllegalAccessException e) {
+                            return "";
+                        }
+                    }).setHeader(formField.label());
+                });
+    }
 
     private void configureForm() {
         form.setVisible(false);

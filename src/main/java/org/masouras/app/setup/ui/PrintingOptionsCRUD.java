@@ -23,13 +23,13 @@ public class PrintingOptionsCRUD extends GenericCrudView<PrintingOptionsEntity, 
     public PrintingOptionsCRUD(PrintingOptionsService service, PrintingOptionsForm form) {
         super(PrintingOptionsEntity.class, form, service);
     }
-
-    @Override
-    protected void addGridColumns(Grid<PrintingOptionsEntity> grid) {
-        grid.addColumn(PrintingOptionsEntity::getPrintingOptionType).setHeader(DbField.OPTION_TYPE.asAlias());
-        grid.addColumn(PrintingOptionsEntity::getPrintingOptionName).setHeader(DbField.OPTION_NAME.asAlias());
-        grid.addColumn(PrintingOptionsEntity::getPrintingOptionValue).setHeader(DbField.OPTION_VALUE.asAlias());
-        grid.addColumn(PrintingOptionsEntity::getPrintingOptionDetails).setHeader(DbField.OPTION_DETAILS.asAlias());
-    }
+//
+//    @Override
+//    protected void addGridColumns(Grid<PrintingOptionsEntity> grid) {
+//        grid.addColumn(PrintingOptionsEntity::getPrintingOptionType).setHeader(DbField.OPTION_TYPE.asAlias());
+//        grid.addColumn(PrintingOptionsEntity::getPrintingOptionName).setHeader(DbField.OPTION_NAME.asAlias());
+//        grid.addColumn(PrintingOptionsEntity::getPrintingOptionValue).setHeader(DbField.OPTION_VALUE.asAlias());
+//        grid.addColumn(PrintingOptionsEntity::getPrintingOptionDetails).setHeader(DbField.OPTION_DETAILS.asAlias());
+//    }
 }
 
