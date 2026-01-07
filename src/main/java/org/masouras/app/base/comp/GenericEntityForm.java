@@ -11,14 +11,17 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.BeanValidator;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Id;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FieldFactory;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
@@ -37,6 +40,7 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
 
     private final Map<Field, Component> fieldComponents = new HashMap<>();
     private final List<Field> keyFields = new ArrayList<>();
+    private Component idComponent;
     private T entity;
     @Setter private Runnable onSaveCallback;
 
@@ -71,6 +75,10 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
 
     private void buildForm(Class<T> entityClass) {
         Arrays.stream(entityClass.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(Id.class))
+                .forEach(this::buildSimpleIdField);
+
+        Arrays.stream(entityClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(EmbeddedId.class))
                 .forEach(field -> {
                     addGroupHeader("Key Fields");
@@ -88,6 +96,27 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
                     addGroupHeader(entry.getKey());
                     entry.getValue().forEach(this::addFieldComponent);
                 });
+    }
+    private void buildSimpleIdField(@NotNull Field idField) {
+        idField.setAccessible(true);
+
+        TextField idText = new TextField("ID");
+        idText.setReadOnly(true);
+        idText.setEnabled(false);
+
+        binder.forField(idText).bind(entity -> {
+                    try {
+                        return StringUtils.trimToEmpty(idField.get(entity).toString());
+                    } catch (Exception e) {
+                        return StringUtils.EMPTY;
+                    }
+                },
+                (entity, value) -> {/* Read-only field, no action needed */ }
+        );
+
+        this.idComponent = idText;
+        add(idText);
+        setColspan(idText, 2);
     }
     private void buildEmbeddedIdFields(Field embeddedField) {
         Arrays.stream(embeddedField.getType().getDeclaredFields())
@@ -176,6 +205,7 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
         binder.readBean(entity);
 
         updateKeyFieldState(entity);
+        updateSimpleIdVisibility(entity);
         setVisible(true);
     }
     private void clearFields() {
@@ -211,8 +241,11 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
         });
     }
     private boolean isEditing(T entity) {
+        return hasEmbeddedIdValue(entity) || hasSimpleIdValue(entity);
+    }
+    private boolean hasEmbeddedIdValue(T entity) {
         try {
-            Field idField = Arrays.stream(entity.getClass().getDeclaredFields())
+            Field idField = Arrays.stream(entityClass.getDeclaredFields())
                     .filter(field -> field.isAnnotationPresent(EmbeddedId.class))
                     .findFirst()
                     .orElse(null);
@@ -233,6 +266,24 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
             return field.get(id) != null;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+    private void updateSimpleIdVisibility(T entity) {
+        if (idComponent == null) return;
+        idComponent.setVisible(hasSimpleIdValue(entity));
+    }
+    private boolean hasSimpleIdValue(T entity) {
+        try {
+            Field idField = Arrays.stream(entityClass.getDeclaredFields())
+                    .filter(f -> f.isAnnotationPresent(Id.class))
+                    .findFirst()
+                    .orElse(null);
+            if (idField == null) return false;
+
+            idField.setAccessible(true);
+            return idField.get(entity) != null;
+        } catch (Exception e) {
+            return false;
         }
     }
 
