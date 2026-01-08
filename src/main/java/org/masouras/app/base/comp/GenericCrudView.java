@@ -7,22 +7,26 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EmbeddedId;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.lang.reflect.Field;
+import java.util.*;
 
 @RequiredArgsConstructor
 public abstract class GenericCrudView<T, ID> extends VerticalLayout {
@@ -32,6 +36,9 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
 
     private final Grid<T> grid = new Grid<>();
     private List<T> allItems;
+    private HeaderRow filterRow;
+    private final Map<Grid.Column<T>, String> columnProperties = new HashMap<>();
+    private final Map<Grid.Column<T>, TextField> columnFilters = new HashMap<>();
 
     @PostConstruct
     private void init() {
@@ -49,12 +56,6 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
 
     private void addComponents() {
         add(new Button(new Icon(VaadinIcon.PLUS_CIRCLE), e -> addEntity()), getFormLayout());
-
-        TextField search = new TextField(e -> applyFilter(e.getValue()));
-        search.setPlaceholder("Search...");
-        search.setClearButtonVisible(true);
-        search.setWidthFull();
-        add(search);
     }
 
     private Component getFormLayout() {
@@ -70,6 +71,8 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.asSingleSelect().addValueChangeListener(e -> editEntity(e.getValue()));
         grid.setMultiSort(true);
+        this.filterRow = grid.appendHeaderRow();
+
         addGridColumns(grid);
         grid.addColumn(new ComponentRenderer<>(entity -> new HorizontalLayout(
                 new Button(new Icon(VaadinIcon.EDIT), e -> editEntity(entity)),
@@ -77,13 +80,44 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
                 .setHeader("Actions").setAutoWidth(true);
     }
     private void addGridColumns(Grid<T> grid) {
+        addGridColumnsEmbeddedIds(grid);
+        addGridColumnsAttributes(grid);
+    }
+    private void addGridColumnsEmbeddedIds(Grid<T> grid) {
+        Arrays.stream(entityClass.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(EmbeddedId.class))
+                .forEach(embeddedField -> {
+                    embeddedField.setAccessible(true);
+                    Arrays.stream(embeddedField.getType().getDeclaredFields())
+                            .forEach(subField -> {
+                                subField.setAccessible(true);
+                                String propertyPath = embeddedField.getName() + "." + subField.getName();
+
+                                Grid.Column<T> col = grid.addColumn(entity -> {
+                                            try {
+                                                Object embedded = embeddedField.get(entity);
+                                                return embedded == null ? StringUtils.EMPTY : subField.get(embedded);
+                                            } catch (Exception e) {
+                                                return StringUtils.EMPTY;
+                                            }
+                                        })
+                                        .setHeader(subField.getName())
+                                        .setSortable(true)
+                                        .setKey(propertyPath);
+                                addFilterForColumn(col, propertyPath);
+                            });
+                });
+    }
+
+    private void addGridColumnsAttributes(Grid<T> grid) {
         Arrays.stream(entityClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(FormField.class))
                 .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
                 .forEach(field -> {
                     field.setAccessible(true);
                     FormField formField = field.getAnnotation(FormField.class);
-                    grid.addColumn(entity -> {
+
+                    Grid.Column<T> col = grid.addColumn(entity -> {
                                 try {
                                     return field.get(entity);
                                 } catch (IllegalAccessException e) {
@@ -91,8 +125,53 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
                                 }
                             })
                             .setHeader(formField.label())
-                            .setSortable(true);
+                            .setSortable(true)
+                            .setKey(field.getName());
+                    addFilterForColumn(col, field.getName());
                 });
+    }
+
+    private void addFilterForColumn(Grid.Column<T> col, String property) {
+        TextField filter = new TextField();
+        filter.setPlaceholder("Filter");
+        filter.setClearButtonVisible(true);
+        filter.setWidthFull();
+        filter.addValueChangeListener(e -> applyColumnFilters());
+        columnFilters.put(col, filter);
+        columnProperties.put(col, property);
+        filterRow.getCell(col).setComponent(filter);
+    }
+
+    private void applyColumnFilters() {
+        List<T> filtered = allItems.stream()
+                .filter(item -> columnFilters.entrySet().stream().allMatch(entry -> {
+                    String filterText = entry.getValue().getValue();
+                    if (StringUtils.isBlank(filterText)) return true;
+
+                    String property = columnProperties.get(entry.getKey());
+                    Object value = getNestedPropertyValue(item, property);
+                    return value != null && value.toString().toLowerCase().contains(filterText.toLowerCase());
+                }))
+                .toList();
+        grid.setItems(filtered);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object getNestedPropertyValue(T item, String propertyPath) {
+        try {
+            return Arrays.stream(propertyPath.split("\\.")).reduce(item, (current, part) -> {
+                if (current == null) return null;
+                try {
+                    Field field = current.getClass().getDeclaredField(part);
+                    field.setAccessible(true);
+                    return (T) field.get(current);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }, (a, b) -> b);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void configureForm() {
@@ -124,33 +203,22 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
 
     protected void updateList() {
         allItems = fetchItems();
+
         grid.setItems(query -> {
             int offset = query.getOffset();
             int limit = query.getLimit();
-            return genericCrudService.list(PageRequest.of(offset / limit, limit)).stream();
+            List<Sort.Order> orders = query.getSortOrders().stream()
+                    .map(sortOrder -> {
+                        String property = sortOrder.getSorted();
+                        Sort.Direction direction = sortOrder.getDirection() == SortDirection.ASCENDING
+                                ? Sort.Direction.ASC
+                                : Sort.Direction.DESC;
+                        return new Sort.Order(direction, property);
+                    })
+                    .toList();
+            Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(orders));
+            return genericCrudService.list(pageable).stream();
         });
-    }
-    private void applyFilter(String filterText) {
-        if (StringUtils.isBlank(filterText)) {
-            grid.setItems(allItems);
-            return;
-        }
-        grid.setItems(allItems.stream()
-                .filter(item -> matchesFilter(item, filterText.toLowerCase()))
-                .toList());
-    }
-    private boolean matchesFilter(T item, String filter) {
-        return Arrays.stream(entityClass.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(FormField.class))
-                .anyMatch(field -> {
-                    field.setAccessible(true);
-                    try {
-                        Object value = field.get(item);
-                        return value != null && value.toString().toLowerCase().contains(filter);
-                    } catch (Exception ignored) {
-                        return false;
-                    }
-                });
     }
 
 
