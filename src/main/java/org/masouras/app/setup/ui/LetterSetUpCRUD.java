@@ -20,6 +20,6 @@ public class LetterSetUpCRUD extends GenericCrudView<LetterSetUpEntity, LetterSe
 
     @Autowired
     public LetterSetUpCRUD(LetterSetUpService service, LetterSetUpForm form) {
-        super(LetterSetUpEntity.class, form, service);
+        super(10, LetterSetUpEntity.class, form, service);
     }
 }

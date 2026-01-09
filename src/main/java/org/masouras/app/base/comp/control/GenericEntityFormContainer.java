@@ -18,7 +18,6 @@ public class GenericEntityFormContainer<T, ID> extends VerticalLayout {
     public void setOnSaveCallback(Runnable onSaveCallback) {
         genericEntityForm.setOnSaveCallback(onSaveCallback);
     }
-
     public void setEntity(T entity) {
         genericEntityForm.setEntity(entity);
     }

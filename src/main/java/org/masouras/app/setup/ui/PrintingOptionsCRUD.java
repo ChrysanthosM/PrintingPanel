@@ -19,7 +19,7 @@ public class PrintingOptionsCRUD extends GenericCrudView<PrintingOptionsEntity, 
 
     @Autowired
     public PrintingOptionsCRUD(PrintingOptionsService service, PrintingOptionsForm form) {
-        super(PrintingOptionsEntity.class, form, service);
+        super(10, PrintingOptionsEntity.class, form, service);
     }
 }
 

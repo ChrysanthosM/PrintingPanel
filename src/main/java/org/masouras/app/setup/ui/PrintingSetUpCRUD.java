@@ -20,7 +20,7 @@ public class PrintingSetUpCRUD extends GenericCrudView<PrintingSetUpEntity, Prin
 
     @Autowired
     public PrintingSetUpCRUD(PrintingSetUpService service, PrintingSetUpForm form) {
-        super(PrintingSetUpEntity.class, form, service);
+        super(10, PrintingSetUpEntity.class, form, service);
     }
 
 }
