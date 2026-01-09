@@ -1,7 +1,6 @@
 package org.masouras.app.base.comp;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -13,8 +12,6 @@ import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.*;
-
 @RequiredArgsConstructor
 public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private final int pageSize;
@@ -22,7 +19,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private final GenericEntityForm<T, ID> genericEntityForm;
     private final GenericCrudService<T, ID> genericCrudService;
 
-    private GenericEntityGridContainer<T, ID> genericEntityGridContainer;
+    private GenericEntityGridContainer<T> genericEntityGridContainer;
     private GenericEntityFormContainer<T, ID> genericEntityFormContainer;
 
     @PostConstruct

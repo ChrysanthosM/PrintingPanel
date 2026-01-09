@@ -26,23 +26,23 @@ import org.springframework.data.domain.Page;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class GenericEntityGridContainer<T, ID> extends VerticalLayout {
-    public static class EditEvent<T> extends ComponentEvent<GenericEntityGridContainer<T, ?>> {
+public class GenericEntityGridContainer<T> extends VerticalLayout {
+    public static class EditEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
         @Getter private final T entity;
-        public EditEvent(GenericEntityGridContainer<T, ?> source, T entity) {
+        public EditEvent(GenericEntityGridContainer<T> source, T entity) {
             super(source, false);
             this.entity = entity;
         }
     }
-    public static class DeleteEvent<T> extends ComponentEvent<GenericEntityGridContainer<T, ?>> {
+    public static class DeleteEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
         @Getter private final T entity;
-        public DeleteEvent(GenericEntityGridContainer<T, ?> source, T entity) {
+        public DeleteEvent(GenericEntityGridContainer<T> source, T entity) {
             super(source, false);
             this.entity = entity;
         }
     }
-    public static class RefreshEvent<T> extends ComponentEvent<GenericEntityGridContainer<T, ?>> {
-        public RefreshEvent(GenericEntityGridContainer<T, ?> source) {
+    public static class RefreshEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
+        public RefreshEvent(GenericEntityGridContainer<T> source) {
             super(source, false);
         }
     }
