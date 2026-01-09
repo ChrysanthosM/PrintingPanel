@@ -44,9 +44,9 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
     private T entity;
     @Setter private Runnable onSaveCallback;
 
-
     @PostConstruct
     private void init() {
+        setVisible(false);
         addComponents();
         addStyle();
     }
@@ -193,7 +193,7 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
         }
     }
 
-    protected void setEntity(T entity) {
+    public void setEntity(T entity) {
         clearFields();
         this.entity = entity;
         if (entity == null) {

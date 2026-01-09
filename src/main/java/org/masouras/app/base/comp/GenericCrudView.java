@@ -17,6 +17,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EmbeddedId;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.masouras.app.base.comp.control.GenericEntityFormContainer;
 import org.masouras.app.base.comp.control.PaginationBar;
 import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
@@ -31,6 +32,8 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private final Class<T> entityClass;
     private final GenericEntityForm<T, ID> genericEntityForm;
     private final GenericCrudService<T, ID> genericCrudService;
+
+    private GenericEntityFormContainer<T, ID> genericEntityFormContainer;
 
     private final Grid<T> grid = new Grid<>();
 
@@ -48,7 +51,6 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         setPadding(false);
         setSpacing(false);
 
-        configureGenericEntityForm();
         configureGrid();
 
         addComponents();
@@ -57,9 +59,11 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         updateList();
     }
     private void addComponents() {
+        genericEntityFormContainer = new GenericEntityFormContainer<>(genericEntityForm);
+
         add(new Button(new Icon(VaadinIcon.PLUS_CIRCLE), _ -> addEntity()),
                 buildGridContainer(),
-                buildFormContainer()
+                genericEntityFormContainer
         );
     }
     private VerticalLayout buildGridContainer() {
@@ -69,19 +73,10 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         gridContainer.setWidthFull();
         return gridContainer;
     }
-    private VerticalLayout buildFormContainer() {
-        VerticalLayout layout = new VerticalLayout(genericEntityForm);
-        layout.setSizeFull();
-        return layout;
-    }
 
     private void bindComponents() {
         paginationBar.addPageChangeListener(_ -> updateList());
-    }
-
-    private void configureGenericEntityForm() {
-        genericEntityForm.setVisible(false);
-        genericEntityForm.setOnSaveCallback(this::updateList);
+        genericEntityFormContainer.setOnSaveCallback(this::updateList);
     }
 
     private void configureGrid() {
@@ -282,8 +277,6 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         return confirm;
     }
 
-    private void deleteItem(T entity) { genericCrudService.delete(entity); }
-
     protected void updateList() {
         Page<T> page = genericCrudService.list(PageRequest.of(paginationBar.getCurrentPage(), paginationBar.getPageSize(), GenericComponentUtils.toSpringSort(currentSortOrders)));
         allItems = page.getContent();
@@ -292,7 +285,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     }
 
     private void addEntity() {
-        genericEntityForm.setEntity(newEntityInstance());
+        genericEntityFormContainer.setEntity(newEntityInstance());
     }
     private T newEntityInstance() {
         try {
@@ -301,8 +294,8 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
             throw new RuntimeException("Cannot create instance of " + entityClass, e);
         }
     }
-
     private void editEntity(T entity) {
-        genericEntityForm.setEntity(entity);
+        genericEntityFormContainer.setEntity(entity);
     }
+    private void deleteItem(T entity) { genericCrudService.delete(entity); }
 }
