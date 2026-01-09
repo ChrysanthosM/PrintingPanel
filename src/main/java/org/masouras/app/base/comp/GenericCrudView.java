@@ -7,23 +7,21 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.*;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EmbeddedId;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.masouras.app.base.comp.control.PaginationBar;
 import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -31,20 +29,18 @@ import java.util.*;
 @RequiredArgsConstructor
 public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private final Class<T> entityClass;
-    private final GenericEntityForm<T, ID> form;
+    private final GenericEntityForm<T, ID> genericEntityForm;
     private final GenericCrudService<T, ID> genericCrudService;
 
     private final Grid<T> grid = new Grid<>();
+
     private List<T> allItems;
     private HeaderRow filterRow;
     private final Map<Grid.Column<T>, String> columnProperties = new HashMap<>();
     private final Map<Grid.Column<T>, Component> columnFilters = new HashMap<>();
     private List<GridSortOrder<T>> currentSortOrders = new ArrayList<>();
 
-    private int currentPage, totalItems, totalPages;
-    private final int pageSize = 10;
-    private Span paginationInfo;
-    private Button firstBtn, prevBtn, nextBtn, lastBtn;
+    private final PaginationBar paginationBar = new PaginationBar(20);
 
     @PostConstruct
     private void init() {
@@ -52,57 +48,40 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         setPadding(false);
         setSpacing(false);
 
+        configureGenericEntityForm();
         configureGrid();
-        configureForm();
 
         addComponents();
+        bindComponents();
 
         updateList();
     }
-
     private void addComponents() {
-        add(new Button(new Icon(VaadinIcon.PLUS_CIRCLE), e -> addEntity()),
+        add(new Button(new Icon(VaadinIcon.PLUS_CIRCLE), _ -> addEntity()),
                 buildGridContainer(),
-                getFormLayout()
+                buildFormContainer()
         );
     }
-    private Component getFormLayout() {
-        VerticalLayout layout = new VerticalLayout(form);
-        layout.setSizeFull();
-        return layout;
-    }
     private VerticalLayout buildGridContainer() {
-        VerticalLayout gridContainer = new VerticalLayout();
+        VerticalLayout gridContainer = new VerticalLayout(grid, paginationBar);
         gridContainer.setPadding(false);
         gridContainer.setSpacing(false);
         gridContainer.setWidthFull();
-        gridContainer.add(grid);
-        gridContainer.add(buildPaginationBar());
         return gridContainer;
     }
-    private HorizontalLayout buildPaginationBar() {
-        this.firstBtn = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT), _ -> goToPage(0));
-        this.prevBtn = new Button(new Icon(VaadinIcon.ANGLE_LEFT),  _ -> goToPage(currentPage - 1));
-        this.nextBtn = new Button(new Icon(VaadinIcon.ANGLE_RIGHT),  _ -> goToPage(currentPage + 1));
-        this.lastBtn = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT), _ -> goToPage(totalPages - 1));
-
-        this.firstBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-        this.prevBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-        this.nextBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-        this.lastBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-
-        this.paginationInfo = new Span();
-
-        HorizontalLayout bar = new HorizontalLayout(this.firstBtn, this.prevBtn, this.paginationInfo, this.nextBtn, this.lastBtn);
-        bar.setWidthFull();
-        bar.setAlignItems(Alignment.CENTER);
-        bar.setJustifyContentMode(JustifyContentMode.CENTER);
-        return bar;
+    private VerticalLayout buildFormContainer() {
+        VerticalLayout layout = new VerticalLayout(genericEntityForm);
+        layout.setSizeFull();
+        return layout;
     }
-    private void goToPage(int page) {
-        if (page < 0 || page >= totalPages) return;
-        currentPage = page;
-        updateList();
+
+    private void bindComponents() {
+        paginationBar.addPageChangeListener(_ -> updateList());
+    }
+
+    private void configureGenericEntityForm() {
+        genericEntityForm.setVisible(false);
+        genericEntityForm.setOnSaveCallback(this::updateList);
     }
 
     private void configureGrid() {
@@ -132,7 +111,6 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
                 }))
                 .setHeader("Edit/Delete Row").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
     }
-
     private void addClearAllFiltersButton() {
         Grid.Column<T> clearCol = grid.addColumn(_ -> StringUtils.EMPTY)
                 .setHeader(StringUtils.EMPTY)
@@ -152,7 +130,6 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         grid.setItems(allItems);
         grid.sort(sortOrders);
     }
-
     private void addGridColumns(Grid<T> grid) {
         addGridColumnsEmbeddedIds(grid);
         addGridColumnsAttributes(grid);
@@ -182,7 +159,6 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
             return StringUtils.EMPTY;
         }
     }
-
     private void addGridColumnsAttributes(Grid<T> grid) {
         Arrays.stream(entityClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(FormField.class))
@@ -288,13 +264,6 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         }
     }
 
-    private void configureForm() {
-        form.setVisible(false);
-        form.setOnSaveCallback(this::updateList);
-    }
-
-    private List<T> fetchItems() { return genericCrudService.findAll(); }
-
     private void showDeleteDialog(T entity) {
         Dialog dialog = new Dialog();
         dialog.add("Are you sure you want to delete this record?");
@@ -316,36 +285,14 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private void deleteItem(T entity) { genericCrudService.delete(entity); }
 
     protected void updateList() {
-        Sort sort = toSpringSort(currentSortOrders);
-        Page<T> page = genericCrudService.list(PageRequest.of(currentPage, pageSize, sort));
-        totalItems = (int) page.getTotalElements();
-        totalPages = page.getTotalPages();
+        Page<T> page = genericCrudService.list(PageRequest.of(paginationBar.getCurrentPage(), paginationBar.getPageSize(), GenericComponentUtils.toSpringSort(currentSortOrders)));
         allItems = page.getContent();
         grid.setItems(allItems);
-        updatePaginationBar();
-    }
-    private void updatePaginationBar() {
-        int start = currentPage * pageSize + 1;
-        int end = Math.min((currentPage + 1) * pageSize, totalItems);
-
-        paginationInfo.setText("Rows: " + start + "–" + end + " of " + totalItems);
-        firstBtn.setEnabled(currentPage > 0);
-        prevBtn.setEnabled(currentPage > 0);
-        nextBtn.setEnabled(currentPage < totalPages - 1);
-        lastBtn.setEnabled(currentPage < totalPages - 1);
-    }
-    private Sort toSpringSort(List<GridSortOrder<T>> orders) {
-        return Sort.by(orders.stream()
-                .map(o -> new Sort.Order(
-                        o.getDirection() == SortDirection.ASCENDING ? Sort.Direction.ASC : Sort.Direction.DESC,
-                        o.getSorted().getKey()
-                ))
-                .toList()
-        );
+        paginationBar.updatePaginationBar((int) page.getTotalElements(), page.getTotalPages());
     }
 
     private void addEntity() {
-        form.setEntity(newEntityInstance());
+        genericEntityForm.setEntity(newEntityInstance());
     }
     private T newEntityInstance() {
         try {
@@ -356,6 +303,6 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     }
 
     private void editEntity(T entity) {
-        form.setEntity(entity);
+        genericEntityForm.setEntity(entity);
     }
 }
