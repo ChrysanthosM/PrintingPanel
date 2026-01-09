@@ -19,6 +19,7 @@ import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jspecify.annotations.NonNull;
+import org.masouras.app.base.comp.GenericComponentUtils;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Page;
 
@@ -73,7 +74,6 @@ public class GenericEntityGridContainer<T, ID> extends VerticalLayout {
     public void addEditListener(ComponentEventListener<EditEvent<T>> listener) { addListener(EditEvent.class, (ComponentEventListener) listener); }
     public void addDeleteListener(ComponentEventListener<DeleteEvent<T>> listener) { addListener(DeleteEvent.class, (ComponentEventListener) listener); }
     public void addRefreshListener(ComponentEventListener<RefreshEvent<T>> listener) { addListener(RefreshEvent.class, (ComponentEventListener) listener); }
-
     public void addPageChangeListener(ComponentEventListener<PaginationBar.PageChangeEvent> listener) { paginationBar.addPageChangeListener(listener); }
     public int getCurrentPage() { return paginationBar.getCurrentPage(); }
     public int getPageSize() { return paginationBar.getPageSize(); }
@@ -144,21 +144,13 @@ public class GenericEntityGridContainer<T, ID> extends VerticalLayout {
                             .forEach(subField -> {
                                 subField.setAccessible(true);
                                 String propertyPath = embeddedField.getName() + "." + subField.getName();
-                                Grid.Column<T> col = grid.addColumn(entity -> getEmbeddedFieldValue(embeddedField, subField, entity))
+                                Grid.Column<T> col = grid.addColumn(entity -> GenericComponentUtils.getEmbeddedFieldValueOr(embeddedField, subField, entity, StringUtils.EMPTY))
                                         .setHeader(subField.getName())
                                         .setSortable(true)
                                         .setKey(propertyPath);
                                 addFilterForColumn(col, propertyPath);
                             });
                 });
-    }
-    private Object getEmbeddedFieldValue(Field embeddedField, Field subField, T entity) {
-        try {
-            Object embedded = embeddedField.get(entity);
-            return embedded == null ? StringUtils.EMPTY : subField.get(embedded);
-        } catch (Exception e) {
-            return StringUtils.EMPTY;
-        }
     }
     private void addGridColumnsAttributes(Grid<T> grid) {
         Arrays.stream(entityClass.getDeclaredFields())
@@ -167,23 +159,16 @@ public class GenericEntityGridContainer<T, ID> extends VerticalLayout {
                 .forEach(field -> {
                     field.setAccessible(true);
                     FormField formField = field.getAnnotation(FormField.class);
-                    Grid.Column<T> col = grid.addColumn(entity -> getFieldValue(field, entity))
+                    Grid.Column<T> col = grid.addColumn(entity -> GenericComponentUtils.getFieldValueOr(field, entity, StringUtils.EMPTY))
                             .setHeader(formField.label())
                             .setSortable(true)
                             .setKey(field.getName());
                     addFilterForColumn(col, field.getName());
                 });
     }
-    private Object getFieldValue(Field field, T entity) {
-        try {
-            return field.get(entity);
-        } catch (IllegalAccessException e) {
-            return StringUtils.EMPTY;
-        }
-    }
 
     private void addFilterForColumn(Grid.Column<T> col, String property) {
-        Field field = resolveField(property);
+        Field field = GenericComponentUtils.resolveField(entityClass, property);
         if (field == null) return;
 
         Component filterComponent;
@@ -208,28 +193,13 @@ public class GenericEntityGridContainer<T, ID> extends VerticalLayout {
         columnProperties.put(col, property);
         filterRow.getCell(col).setComponent(filterComponent);
     }
-    private Field resolveField(String propertyPath) {
-        try {
-            String[] parts = propertyPath.split("\\.");
-            Class<?> currentClass = entityClass;
-            Field field = null;
-            for (String part : parts) {
-                field = currentClass.getDeclaredField(part);
-                field.setAccessible(true);
-                currentClass = field.getType();
-            }
-            return field;
-        } catch (NoSuchFieldException e) {
-            return null;
-        }
-    }
 
     private void applyColumnFilters() {
         List<T> filtered = allItems.stream()
                 .filter(item -> columnFilters.entrySet().stream().allMatch(entry -> {
                     Component comp = entry.getValue();
                     String property = columnProperties.get(entry.getKey());
-                    Object value = getNestedPropertyValue(item, property);
+                    Object value = GenericComponentUtils.getNestedPropertyValue(item, property);
 
                     if (comp instanceof TextField tf) {
                         String filterText = tf.getValue();
@@ -246,23 +216,6 @@ public class GenericEntityGridContainer<T, ID> extends VerticalLayout {
                 .toList();
 
         grid.setItems(filtered);
-    }
-    @SuppressWarnings("unchecked")
-    private Object getNestedPropertyValue(T item, String propertyPath) {
-        try {
-            return Arrays.stream(propertyPath.split("\\.")).reduce(item, (current, part) -> {
-                if (current == null) return null;
-                try {
-                    Field field = current.getClass().getDeclaredField(part);
-                    field.setAccessible(true);
-                    return (T) field.get(current);
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }, (_, b) -> b);
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     private void showDeleteDialog(T entity) {
