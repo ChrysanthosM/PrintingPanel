@@ -9,7 +9,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.Getter;
 
-public class PaginationBar extends HorizontalLayout {
+public final class PaginationBar extends HorizontalLayout {
     public static class PageChangeEvent extends ComponentEvent<PaginationBar> {
         public PageChangeEvent(PaginationBar source) {
             super(source, false);

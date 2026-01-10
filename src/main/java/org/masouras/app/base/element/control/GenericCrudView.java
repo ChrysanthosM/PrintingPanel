@@ -61,7 +61,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         Page<T> page = genericCrudService.list(PageRequest.of(
                 genericEntityGridContainer.getCurrentPage(),
                 genericEntityGridContainer.getPageSize(),
-                GenericComponentUtils.toSpringSort(genericEntityGridContainer.getCurrentSortOrders())));
+                GenericComponentUtils.toSpringSort(genericEntityGridContainer.getGridState().getCurrentSortOrders())));
         genericEntityGridContainer.setGridItems(page);
     }
 
