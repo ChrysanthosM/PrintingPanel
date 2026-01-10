@@ -39,11 +39,11 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
             this.entity = entity;
         }
     }
-    public static class DeleteEntityEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
-        @Getter private final T entity;
-        public DeleteEntityEvent(GenericEntityGridContainer<T> source, T entity) {
+    public static class DeleteEntitiesEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
+        @Getter private final List<T> entities;
+        public DeleteEntitiesEvent(GenericEntityGridContainer<T> source, List<T> entities) {
             super(source, false);
-            this.entity = entity;
+            this.entities = entities;
         }
     }
     public static class RefreshEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
@@ -71,7 +71,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     }
     public void addEntityListener(ComponentEventListener<AddEntityEvent<T>> listener) { addListener(AddEntityEvent.class, (ComponentEventListener) listener); }
     public void addEditEntityListener(ComponentEventListener<EditEntityEvent<T>> listener) { addListener(EditEntityEvent.class, (ComponentEventListener) listener); }
-    public void addDeleteEntityListener(ComponentEventListener<DeleteEntityEvent<T>> listener) { addListener(DeleteEntityEvent.class, (ComponentEventListener) listener); }
+    public void addDeleteEntitiesListener(ComponentEventListener<DeleteEntitiesEvent<T>> listener) { addListener(DeleteEntitiesEvent.class, (ComponentEventListener) listener); }
     public void addRefreshListener(ComponentEventListener<RefreshEvent<T>> listener) { addListener(RefreshEvent.class, (ComponentEventListener) listener); }
     public void addPageChangeListener(ComponentEventListener<PaginationBar.PageChangeEvent> listener) { paginationBar.addPageChangeListener(listener); }
     public int getCurrentPage() { return paginationBar.getCurrentPage(); }
@@ -88,7 +88,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         gridState.getGrid().setSizeFull();
         gridState.getGrid().setEmptyStateText("No items found");
         gridState.getGrid().addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        gridState.getGrid().asSingleSelect().addValueChangeListener(e -> fireEvent(new EditEntityEvent<>(this, e.getValue())));
+        gridState.getGrid().setSelectionMode(Grid.SelectionMode.MULTI);
         gridState.getGrid().setMultiSort(true);
         gridState.getGrid().addSortListener(e -> {
             gridState.setCurrentSortOrders(e.getSortOrder());
@@ -209,7 +209,8 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                     actions.setSpacing(true);
                     return actions;
                 }))
-                .setHeader("Edit/Delete Row").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
+                .setHeader(createBulkDeleteButton())
+                .setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
     }
     private void showDeleteDialog(T entity) {
         Dialog dialog = new Dialog();
@@ -221,11 +222,38 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     }
     private @NonNull Button getDeleteConfirmationButton(T entity, Dialog dialog) {
         Button confirm = new Button("Delete", _ -> {
-            fireEvent(new DeleteEntityEvent<>(this, entity));;
+            fireEvent(new DeleteEntitiesEvent<>(this, List.of(entity)));;
             fireEvent(new RefreshEvent<>(this));
             dialog.close();
         });
         confirm.addThemeVariants(ButtonVariant.LUMO_WARNING);
+        return confirm;
+    }
+
+    private Button createBulkDeleteButton() {
+        Button bulkDelete = new Button("Delete Selected", new Icon(VaadinIcon.TRASH));
+        bulkDelete.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        bulkDelete.addClickListener(_ -> showBulkDeleteDialog());
+        return bulkDelete;
+    }
+    private void showBulkDeleteDialog() {
+        Set<T> selected = gridState.getGrid().getSelectedItems();
+        if (CollectionUtils.isEmpty(selected)) return;
+
+        Dialog dialog = new Dialog();
+        dialog.add("Delete " + selected.size() + " selected item" + (selected.size() == 1 ? StringUtils.EMPTY : "s") + "?");
+        dialog.add(new HorizontalLayout(
+                getBulkDeleteDialogButton(selected, dialog),
+                new Button("Cancel", _ -> dialog.close())));
+        dialog.open();
+    }
+    private @NonNull Button getBulkDeleteDialogButton(Set<T> selected, Dialog dialog) {
+        Button confirm = new Button("Delete", _ -> {
+            fireEvent(new DeleteEntitiesEvent<>(this, new ArrayList<>(selected)));
+            fireEvent(new RefreshEvent<>(this));
+            dialog.close();
+        });
+        confirm.addThemeVariants(ButtonVariant.LUMO_ERROR);
         return confirm;
     }
 }

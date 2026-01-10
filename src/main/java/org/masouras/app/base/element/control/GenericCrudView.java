@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private final int pageSize;
@@ -48,7 +50,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
 
         genericEntityGridContainer.addEntityListener(_ -> addEntity());
         genericEntityGridContainer.addEditEntityListener(e -> editEntity(e.getEntity()));
-        genericEntityGridContainer.addDeleteEntityListener(e -> deleteItem(e.getEntity()));
+        genericEntityGridContainer.addDeleteEntitiesListener(e -> deleteItems(e.getEntities()));
         genericEntityGridContainer.addRefreshListener(_ -> updateList());
     }
 
@@ -73,5 +75,5 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private void editEntity(T entity) {
         genericEntityFormContainer.setEntity(entity);
     }
-    private void deleteItem(T entity) { genericCrudService.delete(entity); }
+    private void deleteItems(List<T> entities) { genericCrudService.deleteAll(entities); }
 }
