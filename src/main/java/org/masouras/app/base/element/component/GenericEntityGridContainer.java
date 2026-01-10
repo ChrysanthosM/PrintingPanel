@@ -92,17 +92,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         addGridColumns(gridState.getGrid());
         addClearAllFiltersButton();
 
-        gridState.getGrid().addColumn(new ComponentRenderer<>(entity -> {
-                    HorizontalLayout actions = new HorizontalLayout(
-                            new Button(new Icon(VaadinIcon.EDIT), _ -> fireEvent(new EditEvent<>(this, entity))),
-                            new Button(new Icon(VaadinIcon.TRASH), _ -> showDeleteDialog(entity))
-                    );
-                    actions.setWidthFull();
-                    actions.setJustifyContentMode(JustifyContentMode.END);
-                    actions.setSpacing(true);
-                    return actions;
-                }))
-                .setHeader("Edit/Delete Row").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
+        addGridEditDeleteColumn();
     }
     private void addClearAllFiltersButton() {
         Grid.Column<T> clearCol = gridState.getGrid().addColumn(_ -> StringUtils.EMPTY)
@@ -162,30 +152,11 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     private void addFilterForColumn(Grid.Column<T> col, String property) {
         Field field = GenericComponentUtils.resolveField(entityClass, property);
         if (field == null) return;
-
-        Component filterComponent;
-        if (field.getType().isEnum()) {
-            ComboBox<Object> combo = new ComboBox<>();
-            combo.setItems(field.getType().getEnumConstants());
-            combo.setPlaceholder("Filter");
-            combo.setClearButtonVisible(true);
-            combo.setWidthFull();
-            combo.addValueChangeListener(_ -> applyColumnFilters());
-            filterComponent = combo;
-        } else {
-            TextField filter = new TextField();
-            filter.setPlaceholder("Filter");
-            filter.setClearButtonVisible(true);
-            filter.setWidthFull();
-            filter.addValueChangeListener(_ -> applyColumnFilters());
-            filterComponent = filter;
-        }
-
+        Component filterComponent = GenericComponentUtils.createFilterComponent(field, _ -> applyColumnFilters());
         gridState.getColumnFilters().put(col, filterComponent);
         gridState.getColumnProperties().put(col, property);
         gridState.getFilterRow().getCell(col).setComponent(filterComponent);
     }
-
     private void applyColumnFilters() {
         List<T> filtered = gridState.getAllItems().stream()
                 .filter(item -> gridState.getColumnFilters().entrySet().stream().allMatch(entry -> {
@@ -210,6 +181,19 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         gridState.getGrid().setItems(filtered);
     }
 
+    private void addGridEditDeleteColumn() {
+        gridState.getGrid().addColumn(new ComponentRenderer<>(entity -> {
+                    HorizontalLayout actions = new HorizontalLayout(
+                            new Button(new Icon(VaadinIcon.EDIT), _ -> fireEvent(new EditEvent<>(this, entity))),
+                            new Button(new Icon(VaadinIcon.TRASH), _ -> showDeleteDialog(entity))
+                    );
+                    actions.setWidthFull();
+                    actions.setJustifyContentMode(JustifyContentMode.END);
+                    actions.setSpacing(true);
+                    return actions;
+                }))
+                .setHeader("Edit/Delete Row").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
+    }
     private void showDeleteDialog(T entity) {
         Dialog dialog = new Dialog();
         dialog.add("Are you sure you want to delete this record?");

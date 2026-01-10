@@ -1,6 +1,11 @@
 package org.masouras.app.base.element.control;
 
+import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Sort;
@@ -70,6 +75,27 @@ public class GenericComponentUtils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static Component createFilterComponent(Field field, HasValue.ValueChangeListener<? super AbstractField.ComponentValueChangeEvent<?, ?>> listener) {
+        Component filterComponent;
+        if (field.getType().isEnum()) {
+            ComboBox<Object> combo = new ComboBox<>();
+            combo.setItems(field.getType().getEnumConstants());
+            combo.setPlaceholder("Filter");
+            combo.setClearButtonVisible(true);
+            combo.setWidthFull();
+            combo.addValueChangeListener(listener);
+            filterComponent = combo;
+        } else {
+            TextField filter = new TextField();
+            filter.setPlaceholder("Filter");
+            filter.setClearButtonVisible(true);
+            filter.setWidthFull();
+            filter.addValueChangeListener(listener);
+            filterComponent = filter;
+        }
+        return filterComponent;
     }
 
 }
