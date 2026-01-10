@@ -1,8 +1,5 @@
 package org.masouras.app.base.element.control;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -42,18 +39,16 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     }
 
     private void addComponents() {
-        add(new Button(new Icon(VaadinIcon.PLUS_CIRCLE), _ -> addEntity()),
-                genericEntityGridContainer,
-                genericEntityFormContainer
-        );
+        add(genericEntityGridContainer, genericEntityFormContainer);
     }
 
     private void bindComponents() {
         genericEntityGridContainer.addPageChangeListener(_ -> updateList());
         genericEntityFormContainer.setOnSaveCallback(this::updateList);
 
-        genericEntityGridContainer.addEditListener(e -> editEntity(e.getEntity()));
-        genericEntityGridContainer.addDeleteListener(e -> deleteItem(e.getEntity()));
+        genericEntityGridContainer.addEntityListener(_ -> addEntity());
+        genericEntityGridContainer.addEditEntityListener(e -> editEntity(e.getEntity()));
+        genericEntityGridContainer.addDeleteEntityListener(e -> deleteItem(e.getEntity()));
         genericEntityGridContainer.addRefreshListener(_ -> updateList());
     }
 

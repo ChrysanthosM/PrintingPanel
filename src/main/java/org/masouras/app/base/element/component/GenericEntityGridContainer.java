@@ -27,16 +27,21 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 public final class GenericEntityGridContainer<T> extends VerticalLayout {
-    public static class EditEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
+    public static class AddEntityEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
+        public AddEntityEvent(GenericEntityGridContainer<T> source) {
+            super(source, false);
+        }
+    }
+    public static class EditEntityEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
         @Getter private final T entity;
-        public EditEvent(GenericEntityGridContainer<T> source, T entity) {
+        public EditEntityEvent(GenericEntityGridContainer<T> source, T entity) {
             super(source, false);
             this.entity = entity;
         }
     }
-    public static class DeleteEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
+    public static class DeleteEntityEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
         @Getter private final T entity;
-        public DeleteEvent(GenericEntityGridContainer<T> source, T entity) {
+        public DeleteEntityEvent(GenericEntityGridContainer<T> source, T entity) {
             super(source, false);
             this.entity = entity;
         }
@@ -64,8 +69,9 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         setSpacing(false);
         setWidthFull();
     }
-    public void addEditListener(ComponentEventListener<EditEvent<T>> listener) { addListener(EditEvent.class, (ComponentEventListener) listener); }
-    public void addDeleteListener(ComponentEventListener<DeleteEvent<T>> listener) { addListener(DeleteEvent.class, (ComponentEventListener) listener); }
+    public void addEntityListener(ComponentEventListener<AddEntityEvent<T>> listener) { addListener(AddEntityEvent.class, (ComponentEventListener) listener); }
+    public void addEditEntityListener(ComponentEventListener<EditEntityEvent<T>> listener) { addListener(EditEntityEvent.class, (ComponentEventListener) listener); }
+    public void addDeleteEntityListener(ComponentEventListener<DeleteEntityEvent<T>> listener) { addListener(DeleteEntityEvent.class, (ComponentEventListener) listener); }
     public void addRefreshListener(ComponentEventListener<RefreshEvent<T>> listener) { addListener(RefreshEvent.class, (ComponentEventListener) listener); }
     public void addPageChangeListener(ComponentEventListener<PaginationBar.PageChangeEvent> listener) { paginationBar.addPageChangeListener(listener); }
     public int getCurrentPage() { return paginationBar.getCurrentPage(); }
@@ -82,19 +88,29 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         gridState.getGrid().setSizeFull();
         gridState.getGrid().setEmptyStateText("No items found");
         gridState.getGrid().addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        gridState.getGrid().asSingleSelect().addValueChangeListener(e -> fireEvent(new EditEvent<>(this, e.getValue())));
+        gridState.getGrid().asSingleSelect().addValueChangeListener(e -> fireEvent(new EditEntityEvent<>(this, e.getValue())));
         gridState.getGrid().setMultiSort(true);
         gridState.getGrid().addSortListener(e -> {
             gridState.setCurrentSortOrders(e.getSortOrder());
             fireEvent(new RefreshEvent<>(this));
         });
 
+        addGridAddEntityColumn();
         addGridColumns(gridState.getGrid());
-        addClearAllFiltersButton();
-
+        addGridClearAllFiltersButton();
         addGridEditDeleteColumn();
     }
-    private void addClearAllFiltersButton() {
+    private void addGridAddEntityColumn() {
+        Grid.Column<T> addCol = gridState.getGrid().addColumn(_ -> StringUtils.EMPTY)
+                .setHeader(StringUtils.EMPTY)
+                .setAutoWidth(true)
+                .setFlexGrow(0);
+        Button addBtn = new Button(new Icon(VaadinIcon.PLUS_CIRCLE), _ -> fireEvent(new AddEntityEvent<>(this)));
+        addBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        addBtn.getElement().setProperty("title", "Add Row");
+        gridState.getFilterRow().getCell(addCol).setComponent(addBtn);
+    }
+    private void addGridClearAllFiltersButton() {
         Grid.Column<T> clearCol = gridState.getGrid().addColumn(_ -> StringUtils.EMPTY)
                 .setHeader(StringUtils.EMPTY)
                 .setAutoWidth(true)
@@ -181,10 +197,11 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         gridState.getGrid().setItems(filtered);
     }
 
+
     private void addGridEditDeleteColumn() {
         gridState.getGrid().addColumn(new ComponentRenderer<>(entity -> {
                     HorizontalLayout actions = new HorizontalLayout(
-                            new Button(new Icon(VaadinIcon.EDIT), _ -> fireEvent(new EditEvent<>(this, entity))),
+                            new Button(new Icon(VaadinIcon.EDIT), _ -> fireEvent(new EditEntityEvent<>(this, entity))),
                             new Button(new Icon(VaadinIcon.TRASH), _ -> showDeleteDialog(entity))
                     );
                     actions.setWidthFull();
@@ -204,7 +221,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     }
     private @NonNull Button getDeleteConfirmationButton(T entity, Dialog dialog) {
         Button confirm = new Button("Delete", _ -> {
-            fireEvent(new DeleteEvent<>(this, entity));;
+            fireEvent(new DeleteEntityEvent<>(this, entity));;
             fireEvent(new RefreshEvent<>(this));
             dialog.close();
         });
