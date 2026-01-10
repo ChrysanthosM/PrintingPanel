@@ -1,4 +1,4 @@
-package org.masouras.app.base.comp;
+package org.masouras.app.base.element.control;
 
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.data.provider.SortDirection;

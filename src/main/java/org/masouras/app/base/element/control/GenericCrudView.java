@@ -1,4 +1,4 @@
-package org.masouras.app.base.comp;
+package org.masouras.app.base.element.control;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.Icon;
@@ -6,9 +6,10 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.masouras.app.base.comp.control.GenericEntityFormContainer;
-import org.masouras.app.base.comp.control.GenericEntityGridContainer;
+import org.masouras.app.base.element.component.GenericEntityFormContainer;
+import org.masouras.app.base.element.component.GenericEntityGridContainer;
 import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -16,14 +17,20 @@ import org.springframework.data.domain.PageRequest;
 public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private final int pageSize;
     private final Class<T> entityClass;
-    private final GenericEntityForm<T, ID> genericEntityForm;
     private final GenericCrudService<T, ID> genericCrudService;
+    private final GenericEntityForm<T, ID> genericEntityForm;
 
+    @Autowired private GenericContainerFactory genericContainerFactory;
     private GenericEntityGridContainer<T> genericEntityGridContainer;
     private GenericEntityFormContainer<T, ID> genericEntityFormContainer;
 
     @PostConstruct
     private void init() {
+        genericEntityGridContainer = genericContainerFactory.createGenericEntityGridContainer(entityClass, pageSize);
+        genericEntityFormContainer = genericContainerFactory.createGenericEntityFormContainer(genericEntityForm);
+        initMain();
+    }
+    private void initMain() {
         setSizeFull();
         setPadding(false);
         setSpacing(false);
@@ -33,9 +40,8 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
 
         updateList();
     }
+
     private void addComponents() {
-        genericEntityGridContainer = new GenericEntityGridContainer<>(entityClass, pageSize);
-        genericEntityFormContainer = new GenericEntityFormContainer<>(genericEntityForm);
         add(new Button(new Icon(VaadinIcon.PLUS_CIRCLE), _ -> addEntity()),
                 genericEntityGridContainer,
                 genericEntityFormContainer

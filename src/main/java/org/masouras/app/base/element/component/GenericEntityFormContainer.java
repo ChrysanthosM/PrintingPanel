@@ -1,9 +1,9 @@
-package org.masouras.app.base.comp.control;
+package org.masouras.app.base.element.component;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.masouras.app.base.comp.GenericEntityForm;
+import org.masouras.app.base.element.control.GenericEntityForm;
 
-public class GenericEntityFormContainer<T, ID> extends VerticalLayout {
+public final class GenericEntityFormContainer<T, ID> extends VerticalLayout {
     private final GenericEntityForm<T, ID> genericEntityForm;
 
     public GenericEntityFormContainer(GenericEntityForm<T, ID> genericEntityForm) {
@@ -11,7 +11,7 @@ public class GenericEntityFormContainer<T, ID> extends VerticalLayout {
         init();
     }
     private void init() {
-        add(genericEntityForm);
+        add(this.genericEntityForm);
         setSizeFull();
     }
 

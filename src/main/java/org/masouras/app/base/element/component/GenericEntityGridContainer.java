@@ -1,4 +1,4 @@
-package org.masouras.app.base.comp.control;
+package org.masouras.app.base.element.component;
 
 import com.vaadin.copilot.shaded.commons.lang3.StringUtils;
 import com.vaadin.flow.component.Component;
@@ -19,14 +19,14 @@ import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jspecify.annotations.NonNull;
-import org.masouras.app.base.comp.GenericComponentUtils;
+import org.masouras.app.base.element.control.GenericComponentUtils;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Page;
 
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class GenericEntityGridContainer<T> extends VerticalLayout {
+public final class GenericEntityGridContainer<T> extends VerticalLayout {
     public static class EditEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
         @Getter private final T entity;
         public EditEvent(GenericEntityGridContainer<T> source, T entity) {
@@ -47,7 +47,6 @@ public class GenericEntityGridContainer<T> extends VerticalLayout {
         }
     }
 
-
     private final Class<T> entityClass;
     private final PaginationBar paginationBar;
 
@@ -65,12 +64,11 @@ public class GenericEntityGridContainer<T> extends VerticalLayout {
     }
     private void init() {
         configureGrid();
-        add(grid, paginationBar);
+        add(this.grid, this.paginationBar);
         setPadding(false);
         setSpacing(false);
         setWidthFull();
     }
-
     public void addEditListener(ComponentEventListener<EditEvent<T>> listener) { addListener(EditEvent.class, (ComponentEventListener) listener); }
     public void addDeleteListener(ComponentEventListener<DeleteEvent<T>> listener) { addListener(DeleteEvent.class, (ComponentEventListener) listener); }
     public void addRefreshListener(ComponentEventListener<RefreshEvent<T>> listener) { addListener(RefreshEvent.class, (ComponentEventListener) listener); }
@@ -197,7 +195,7 @@ public class GenericEntityGridContainer<T> extends VerticalLayout {
     private void applyColumnFilters() {
         List<T> filtered = allItems.stream()
                 .filter(item -> columnFilters.entrySet().stream().allMatch(entry -> {
-                    Component comp = entry.getValue();
+                    com.vaadin.flow.component.Component comp = entry.getValue();
                     String property = columnProperties.get(entry.getKey());
                     Object value = GenericComponentUtils.getNestedPropertyValue(item, property);
 

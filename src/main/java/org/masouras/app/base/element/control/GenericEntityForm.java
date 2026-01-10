@@ -1,4 +1,4 @@
-package org.masouras.app.base.comp;
+package org.masouras.app.base.element.control;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;

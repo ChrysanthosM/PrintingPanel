@@ -1,4 +1,4 @@
-package org.masouras.app.base.comp.control;
+package org.masouras.app.base.element.component;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
