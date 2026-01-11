@@ -54,7 +54,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         genericEntityGridContainer.addRefreshListener(_ -> updateList());
     }
 
-    protected void updateList() {
+    private void updateList() {
         Page<T> page = genericCrudService.list(PageRequest.of(
                 genericEntityGridContainer.getCurrentPage(),
                 genericEntityGridContainer.getPageSize(),

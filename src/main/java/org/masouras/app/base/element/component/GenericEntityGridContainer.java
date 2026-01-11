@@ -58,6 +58,8 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
 
     @Getter private final GenericEntityGridState<T> gridState = new GenericEntityGridState<>();
 
+    private boolean clearingNow = false;
+
     public GenericEntityGridContainer(Class<T> entityClass, int pageSize) {
         this.entityClass = entityClass;
         this.paginationBar = new PaginationBar(pageSize);
@@ -121,7 +123,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                                 String propertyPath = embeddedField.getName() + "." + subField.getName();
                                 FormField formField = subField.getAnnotation(FormField.class);
                                 Grid.Column<T> col = grid.addColumn(entity -> GenericComponentUtils.getEmbeddedFieldValueOr(embeddedField, subField, entity, StringUtils.EMPTY))
-                                        .setHeader(formField != null ? formField.label() : subField.getName())
+                                        .setHeader(formField != null && StringUtils.isNotBlank(formField.label()) ? formField.label() : subField.getName())
                                         .setSortable(true)
                                         .setKey(propertyPath);
                                 addFilterForColumn(col, propertyPath);
@@ -136,7 +138,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                     field.setAccessible(true);
                     FormField formField = field.getAnnotation(FormField.class);
                     Grid.Column<T> col = grid.addColumn(entity -> GenericComponentUtils.getFieldValueOr(field, entity, StringUtils.EMPTY))
-                            .setHeader(formField.label())
+                            .setHeader(StringUtils.isNotBlank(formField.label()) ? formField.label() : field.getName())
                             .setSortable(true)
                             .setKey(field.getName());
                     addFilterForColumn(col, field.getName());
@@ -160,6 +162,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         gridState.getColumnProperties().put(col, property);
     }
     private void applyColumnFilters() {
+        if (clearingNow) return;
         List<T> filtered = gridState.getAllItems().stream()
                 .filter(item -> gridState.getColumnFilters().entrySet().stream().allMatch(entry -> {
                     com.vaadin.flow.component.Component comp = entry.getValue();
@@ -214,13 +217,18 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         gridState.getFilterRow().getCell(clearCol).setComponent(clearBtn);
     }
     private void clearAllFilters() {
-        gridState.getColumnFilters().values().forEach(component -> {
-            if (component instanceof TextField textField) textField.clear();
-            if (component instanceof ComboBox<?> comboBox) comboBox.clear();
-        });
-        List<GridSortOrder<T>> sortOrders = gridState.getGrid().getSortOrder();
-        gridState.getGrid().setItems(gridState.getAllItems());
-        gridState.getGrid().sort(sortOrders);
+        clearingNow = true;
+        try {
+            gridState.getColumnFilters().values().forEach(component -> {
+                if (component instanceof TextField textField) textField.clear();
+                if (component instanceof ComboBox<?> comboBox) comboBox.clear();
+            });
+            List<GridSortOrder<T>> sortOrders = gridState.getGrid().getSortOrder();
+            gridState.getGrid().setItems(gridState.getAllItems());
+            gridState.getGrid().sort(sortOrders);
+        } finally {
+            clearingNow = false;
+        }
     }
 
     private void addGridEditDeleteColumn() {
