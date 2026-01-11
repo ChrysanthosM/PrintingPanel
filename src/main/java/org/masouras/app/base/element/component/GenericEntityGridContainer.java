@@ -86,17 +86,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     }
 
     private void configureGrid() {
-        gridState.getGrid().setSizeFull();
-        gridState.getGrid().setEmptyStateText("No items found");
-        gridState.getGrid().addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        gridState.getGrid().setSelectionMode(Grid.SelectionMode.MULTI);
-        gridState.getGrid().setMultiSort(true);
-        gridState.getGrid().addSortListener(e -> {
-            gridState.setCurrentSortOrders(e.getSortOrder());
-            fireEvent(new RefreshEvent<>(this));
-        });
-
-
+        configureGridControl();
         addGridColumns(gridState.getGrid());
         addGridFilterRow();
 
@@ -104,9 +94,17 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         addGridEditDeleteColumn();
         addGridAddEntityColumn();
     }
-
-
-
+    private void configureGridControl() {
+        gridState.getGrid().setSizeFull();
+        gridState.getGrid().setEmptyStateText("No items found");
+//        gridState.getGrid().addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        gridState.getGrid().setSelectionMode(Grid.SelectionMode.MULTI);
+        gridState.getGrid().setMultiSort(true);
+        gridState.getGrid().addSortListener(e -> {
+            gridState.setCurrentSortOrders(e.getSortOrder());
+            fireEvent(new RefreshEvent<>(this));
+        });
+    }
 
     private void addGridColumns(Grid<T> grid) {
         addGridColumnsEmbeddedIds(grid);
@@ -121,8 +119,9 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                             .forEach(subField -> {
                                 subField.setAccessible(true);
                                 String propertyPath = embeddedField.getName() + "." + subField.getName();
+                                FormField formField = subField.getAnnotation(FormField.class);
                                 Grid.Column<T> col = grid.addColumn(entity -> GenericComponentUtils.getEmbeddedFieldValueOr(embeddedField, subField, entity, StringUtils.EMPTY))
-                                        .setHeader(subField.getName())
+                                        .setHeader(formField != null ? formField.label() : subField.getName())
                                         .setSortable(true)
                                         .setKey(propertyPath);
                                 addFilterForColumn(col, propertyPath);
