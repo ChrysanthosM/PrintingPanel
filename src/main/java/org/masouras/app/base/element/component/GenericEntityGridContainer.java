@@ -26,6 +26,7 @@ import org.springframework.data.domain.Page;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.BiFunction;
 
 public final class GenericEntityGridContainer<T> extends VerticalLayout {
     public static class AddEntityEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
@@ -118,31 +119,34 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                 .forEach(embeddedField -> {
                     embeddedField.setAccessible(true);
                     Arrays.stream(embeddedField.getType().getDeclaredFields())
-                            .forEach(subField -> {
-                                subField.setAccessible(true);
-                                String propertyPath = embeddedField.getName() + "." + subField.getName();
-                                FormField formField = subField.getAnnotation(FormField.class);
-                                Grid.Column<T> col = grid.addColumn(entity -> GenericComponentUtils.getEmbeddedFieldValueOr(embeddedField, subField, entity, StringUtils.EMPTY))
-                                        .setHeader(formField != null && StringUtils.isNotBlank(formField.label()) ? formField.label() : subField.getName())
-                                        .setSortable(true)
-                                        .setKey(propertyPath);
-                                addFilterForColumn(col, propertyPath);
-                            });
+                            .filter(subField -> subField.isAnnotationPresent(FormField.class))
+                            .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
+                            .forEach(forField ->
+                                    createGridColumn(grid, forField, embeddedField.getName() + "." + forField.getName(),
+                                            (entity, field) -> GenericComponentUtils.getEmbeddedFieldValueOr(embeddedField, field, entity, StringUtils.EMPTY)));
                 });
     }
     private void addGridColumnsAttributes(Grid<T> grid) {
         Arrays.stream(entityClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(FormField.class))
                 .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
-                .forEach(field -> {
-                    field.setAccessible(true);
-                    FormField formField = field.getAnnotation(FormField.class);
-                    Grid.Column<T> col = grid.addColumn(entity -> GenericComponentUtils.getFieldValueOr(field, entity, StringUtils.EMPTY))
-                            .setHeader(StringUtils.isNotBlank(formField.label()) ? formField.label() : field.getName())
-                            .setSortable(true)
-                            .setKey(field.getName());
-                    addFilterForColumn(col, field.getName());
-                });
+                .forEach(forField ->
+                        createGridColumn(grid, forField, forField.getName(),
+                                (entity, field) -> GenericComponentUtils.getFieldValueOr(field, entity, StringUtils.EMPTY)));
+    }
+    private void createGridColumn(Grid<T> grid, Field field, String propertyPath, BiFunction<T, Field, Object> valueExtractor) {
+        field.setAccessible(true);
+
+        FormField formField = field.getAnnotation(FormField.class);
+        Grid.Column<T> col = grid.addColumn(entity -> {
+                    Object value = valueExtractor.apply(entity, field);
+                    return value != null ? value : StringUtils.EMPTY;
+                })
+                .setHeader((formField != null && StringUtils.isNotBlank(formField.label())) ? formField.label() : field.getName())
+                .setSortable(true)
+                .setKey(propertyPath);
+
+        addFilterForColumn(col, propertyPath);
     }
 
     private void addGridFilterRow() {
