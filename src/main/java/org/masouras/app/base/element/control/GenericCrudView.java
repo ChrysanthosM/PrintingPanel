@@ -1,5 +1,6 @@
 package org.masouras.app.base.element.control;
 
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
 
     @PostConstruct
     private void init() {
-        genericEntityGridContainer = genericContainerFactory.createGenericEntityGridContainer(entityClass, title, pageSize);
+        genericEntityGridContainer = genericContainerFactory.createGenericEntityGridContainer(entityClass, pageSize);
         genericEntityFormContainer = genericContainerFactory.createGenericEntityFormContainer(genericEntityForm);
         initMain();
     }
@@ -42,7 +43,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     }
 
     private void addComponents() {
-        add(genericEntityGridContainer, genericEntityFormContainer);
+        add(new H2(title), genericEntityGridContainer, genericEntityFormContainer);
     }
 
     private void bindComponents() {

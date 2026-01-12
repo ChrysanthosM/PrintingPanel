@@ -54,22 +54,20 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     }
 
     private final Class<T> entityClass;
-    private final String title;
     private final PaginationBar paginationBar;
 
     @Getter private final GenericEntityGridState<T> gridState = new GenericEntityGridState<>();
 
     private boolean clearingNow = false;
 
-    public GenericEntityGridContainer(Class<T> entityClass, String title, int pageSize) {
-        this.title = title;
+    public GenericEntityGridContainer(Class<T> entityClass, int pageSize) {
         this.entityClass = entityClass;
         this.paginationBar = new PaginationBar(pageSize);
         init();
     }
     private void init() {
         configureGrid();
-        add(new H2(title), gridState.getGrid(), paginationBar);
+        add(gridState.getGrid(), paginationBar);
         setPadding(false);
         setSpacing(false);
         setWidthFull();

@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GenericContainerFactory {
-    public <T> GenericEntityGridContainer<T> createGenericEntityGridContainer(Class<T> entityClass, String title, int pageSize) {
-        return new GenericEntityGridContainer<>(entityClass, title, pageSize);
+    public <T> GenericEntityGridContainer<T> createGenericEntityGridContainer(Class<T> entityClass, int pageSize) {
+        return new GenericEntityGridContainer<>(entityClass, pageSize);
     }
     public <T, ID> GenericEntityFormContainer<T, ID> createGenericEntityFormContainer(GenericEntityForm<T, ID> form) {
         return new GenericEntityFormContainer<>(form);
