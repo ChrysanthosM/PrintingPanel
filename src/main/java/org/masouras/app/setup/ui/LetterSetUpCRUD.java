@@ -19,6 +19,6 @@ import org.springframework.stereotype.Component;
 public class LetterSetUpCRUD extends GenericCrudView<LetterSetUpEntity, LetterSetUpKey> {
     @Autowired
     public LetterSetUpCRUD(LetterSetUpService service, LetterSetUpForm form) {
-        super(10, LetterSetUpEntity.class, service, form);
+        super("Letter SetUp", 10, LetterSetUpEntity.class, service, form);
     }
 }

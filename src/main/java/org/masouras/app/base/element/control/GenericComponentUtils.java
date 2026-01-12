@@ -1,17 +1,22 @@
 package org.masouras.app.base.element.control;
 
+import com.vaadin.copilot.shaded.commons.lang3.StringUtils;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import lombok.experimental.UtilityClass;
+import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Sort;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 @UtilityClass
 public class GenericComponentUtils {
@@ -24,6 +29,20 @@ public class GenericComponentUtils {
                 ))
                 .toList()
         );
+    }
+
+    public static <T> void createGridColumn(Grid<T> grid, Field field, String propertyPath,
+                                            BiFunction<T, Field, Object> valueExtractor, BiConsumer<Grid.Column<T>, String> filterConsumer) {
+        field.setAccessible(true);
+        FormField formField = field.getAnnotation(FormField.class);
+        Grid.Column<T> col = grid.addColumn(entity -> {
+                    Object value = valueExtractor.apply(entity, field);
+                    return value != null ? value : StringUtils.EMPTY;
+                })
+                .setHeader((formField != null && StringUtils.isNotBlank(formField.label())) ? formField.label() : field.getName())
+                .setSortable(true)
+                .setKey(propertyPath);
+        filterConsumer.accept(col, propertyPath);
     }
 
     public static Object getEmbeddedFieldValueOr(Field embeddedField, Field subField, Object entity,

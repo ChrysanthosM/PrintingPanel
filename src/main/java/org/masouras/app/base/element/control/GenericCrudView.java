@@ -14,6 +14,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public abstract class GenericCrudView<T, ID> extends VerticalLayout {
+    private final String title;
     private final int pageSize;
     private final Class<T> entityClass;
     private final GenericCrudService<T, ID> genericCrudService;
@@ -25,7 +26,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
 
     @PostConstruct
     private void init() {
-        genericEntityGridContainer = genericContainerFactory.createGenericEntityGridContainer(entityClass, pageSize);
+        genericEntityGridContainer = genericContainerFactory.createGenericEntityGridContainer(entityClass, title, pageSize);
         genericEntityFormContainer = genericContainerFactory.createGenericEntityFormContainer(genericEntityForm);
         initMain();
     }
@@ -75,5 +76,8 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private void editEntity(T entity) {
         genericEntityFormContainer.setEntity(entity);
     }
-    private void deleteItems(List<T> entities) { genericCrudService.deleteAll(entities); }
+    private void deleteItems(List<T> entities) {
+        genericCrudService.deleteAll(entities);
+        updateList();
+    }
 }

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class PrintingSetUpCRUD extends GenericCrudView<PrintingSetUpEntity, PrintingSetUpKey> {
     @Autowired
     public PrintingSetUpCRUD(PrintingSetUpService service, PrintingSetUpForm form) {
-        super(10, PrintingSetUpEntity.class, service, form);
+        super("Printing SetUp", 10, PrintingSetUpEntity.class, service, form);
     }
 
 }

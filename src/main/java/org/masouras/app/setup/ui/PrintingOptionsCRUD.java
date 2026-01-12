@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class PrintingOptionsCRUD extends GenericCrudView<PrintingOptionsEntity, Long> {
     @Autowired
     public PrintingOptionsCRUD(PrintingOptionsService service, PrintingOptionsForm form) {
-        super(10, PrintingOptionsEntity.class, service, form);
+        super("Printing Options", 10, PrintingOptionsEntity.class, service, form);
     }
 }
 

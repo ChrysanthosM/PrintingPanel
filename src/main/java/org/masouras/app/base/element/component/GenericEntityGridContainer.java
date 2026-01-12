@@ -1,7 +1,6 @@
 package org.masouras.app.base.element.component;
 
 import com.vaadin.copilot.shaded.commons.lang3.StringUtils;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
@@ -9,6 +8,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.*;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -26,7 +26,6 @@ import org.springframework.data.domain.Page;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.function.BiFunction;
 
 public final class GenericEntityGridContainer<T> extends VerticalLayout {
     public static class AddEntityEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
@@ -55,20 +54,22 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     }
 
     private final Class<T> entityClass;
+    private final String title;
     private final PaginationBar paginationBar;
 
     @Getter private final GenericEntityGridState<T> gridState = new GenericEntityGridState<>();
 
     private boolean clearingNow = false;
 
-    public GenericEntityGridContainer(Class<T> entityClass, int pageSize) {
+    public GenericEntityGridContainer(Class<T> entityClass, String title, int pageSize) {
+        this.title = title;
         this.entityClass = entityClass;
         this.paginationBar = new PaginationBar(pageSize);
         init();
     }
     private void init() {
         configureGrid();
-        add(gridState.getGrid(), this.paginationBar);
+        add(new H2(title), gridState.getGrid(), paginationBar);
         setPadding(false);
         setSpacing(false);
         setWidthFull();
@@ -81,6 +82,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     public int getCurrentPage() { return paginationBar.getCurrentPage(); }
     public int getPageSize() { return paginationBar.getPageSize(); }
 
+
     public void setGridItems(Page<T> page) {
         gridState.setAllItems(page.getContent());
         gridState.getGrid().setItems(gridState.getAllItems());
@@ -90,7 +92,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
 
     private void configureGrid() {
         configureGridControl();
-        addGridColumns(gridState.getGrid());
+        addGridColumns();
         addGridFilterRow();
 
         addGridClearAllFiltersButton();
@@ -109,11 +111,11 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         });
     }
 
-    private void addGridColumns(Grid<T> grid) {
-        addGridColumnsEmbeddedIds(grid);
-        addGridColumnsAttributes(grid);
+    private void addGridColumns() {
+        addGridColumnsEmbeddedIds();
+        addGridColumnsAttributes();
     }
-    private void addGridColumnsEmbeddedIds(Grid<T> grid) {
+    private void addGridColumnsEmbeddedIds() {
         Arrays.stream(entityClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(EmbeddedId.class))
                 .forEach(embeddedField -> {
@@ -121,32 +123,18 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                     Arrays.stream(embeddedField.getType().getDeclaredFields())
                             .filter(subField -> subField.isAnnotationPresent(FormField.class))
                             .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
-                            .forEach(forField ->
-                                    createGridColumn(grid, forField, embeddedField.getName() + "." + forField.getName(),
-                                            (entity, field) -> GenericComponentUtils.getEmbeddedFieldValueOr(embeddedField, field, entity, StringUtils.EMPTY)));
+                            .forEach(formField -> GenericComponentUtils.createGridColumn(
+                                    gridState.getGrid(), formField, embeddedField.getName() + "." + formField.getName(),
+                                    (entity, field) -> GenericComponentUtils.getEmbeddedFieldValueOr(embeddedField, field, entity, StringUtils.EMPTY), this::addFilterForColumn));
                 });
     }
-    private void addGridColumnsAttributes(Grid<T> grid) {
+    private void addGridColumnsAttributes() {
         Arrays.stream(entityClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(FormField.class))
                 .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
-                .forEach(forField ->
-                        createGridColumn(grid, forField, forField.getName(),
-                                (entity, field) -> GenericComponentUtils.getFieldValueOr(field, entity, StringUtils.EMPTY)));
-    }
-    private void createGridColumn(Grid<T> grid, Field field, String propertyPath, BiFunction<T, Field, Object> valueExtractor) {
-        field.setAccessible(true);
-
-        FormField formField = field.getAnnotation(FormField.class);
-        Grid.Column<T> col = grid.addColumn(entity -> {
-                    Object value = valueExtractor.apply(entity, field);
-                    return value != null ? value : StringUtils.EMPTY;
-                })
-                .setHeader((formField != null && StringUtils.isNotBlank(formField.label())) ? formField.label() : field.getName())
-                .setSortable(true)
-                .setKey(propertyPath);
-
-        addFilterForColumn(col, propertyPath);
+                .forEach(formField -> GenericComponentUtils.createGridColumn(
+                        gridState.getGrid(), formField, formField.getName(),
+                        (entity, field) -> GenericComponentUtils.getFieldValueOr(field, entity, StringUtils.EMPTY), this::addFilterForColumn));
     }
 
     private void addGridFilterRow() {
@@ -154,31 +142,25 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         gridState.getColumnProperties().keySet().stream()
                 .map(column -> Map.entry(column, gridState.getColumnFilters().get(column)))
                 .filter(entry -> entry.getValue() != null)
-                .forEach(entry ->
-                        gridState.getFilterRow().getCell(entry.getKey()).setComponent(entry.getValue())
-                );
+                .forEach(entry -> gridState.getFilterRow().getCell(entry.getKey()).setComponent(entry.getValue()));
     }
     private void addFilterForColumn(Grid.Column<T> col, String property) {
         Field field = GenericComponentUtils.resolveField(entityClass, property);
         if (field == null) return;
-        Component filterComponent = GenericComponentUtils.createFilterComponent(field, _ -> applyColumnFilters());
-        gridState.getColumnFilters().put(col, filterComponent);
+        gridState.getColumnFilters().put(col, GenericComponentUtils.createFilterComponent(field, _ -> applyColumnFilters()));
         gridState.getColumnProperties().put(col, property);
     }
     private void applyColumnFilters() {
         if (clearingNow) return;
         List<T> filtered = gridState.getAllItems().stream()
                 .filter(item -> gridState.getColumnFilters().entrySet().stream().allMatch(entry -> {
-                    com.vaadin.flow.component.Component comp = entry.getValue();
-                    String property = gridState.getColumnProperties().get(entry.getKey());
-                    Object value = GenericComponentUtils.getNestedPropertyValue(item, property);
-
-                    if (comp instanceof TextField tf) {
+                    Object value = GenericComponentUtils.getNestedPropertyValue(item, gridState.getColumnProperties().get(entry.getKey()));
+                    if (entry.getValue() instanceof TextField tf) {
                         String filterText = tf.getValue();
                         if (StringUtils.isBlank(filterText)) return true;
                         return value != null && value.toString().toLowerCase().contains(filterText.toLowerCase());
                     }
-                    if (comp instanceof ComboBox<?> cb) {
+                    if (entry.getValue() instanceof ComboBox<?> cb) {
                         Object selected = cb.getValue();
                         if (selected == null) return true;
                         return value != null && value.equals(selected);
@@ -186,7 +168,6 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                     return true;
                 }))
                 .toList();
-
         gridState.getGrid().setItems(filtered);
     }
 
@@ -199,14 +180,12 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         addBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         addBtn.getElement().setProperty("title", "Add Row");
         gridState.getFilterRow().getCell(addCol).setComponent(addBtn);
-        reorderColumnSetFirst(addCol);
+        reorderColumnsSetFirst(addCol);
     }
-    private void reorderColumnSetFirst(Grid.Column<T> addCol) {
+    private void reorderColumnsSetFirst(Grid.Column<T> addCol) {
         List<Grid.Column<T>> newOrder = new ArrayList<>();
         newOrder.add(addCol);
-        gridState.getGrid().getColumns().stream()
-                .filter(c -> c != addCol)
-                .forEach(newOrder::add);
+        gridState.getGrid().getColumns().stream().filter(c -> c != addCol).forEach(newOrder::add);
         gridState.getGrid().setColumnOrder(newOrder);
     }
 
@@ -260,8 +239,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     }
     private @NonNull Button getDeleteConfirmationButton(T entity, Dialog dialog) {
         Button confirm = new Button("Delete", _ -> {
-            fireEvent(new DeleteEntitiesEvent<>(this, List.of(entity)));;
-            fireEvent(new RefreshEvent<>(this));
+            fireEvent(new DeleteEntitiesEvent<>(this, List.of(entity)));
             dialog.close();
         });
         confirm.addThemeVariants(ButtonVariant.LUMO_WARNING);
@@ -270,7 +248,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
 
     private Button createBulkDeleteButton() {
         Button bulkDelete = new Button("Delete Selected", new Icon(VaadinIcon.TRASH));
-        bulkDelete.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        bulkDelete.addThemeVariants(ButtonVariant.LUMO_WARNING);
         bulkDelete.addClickListener(_ -> showBulkDeleteDialog());
         return bulkDelete;
     }
@@ -288,10 +266,9 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     private @NonNull Button getBulkDeleteDialogButton(Set<T> selected, Dialog dialog) {
         Button confirm = new Button("Delete", _ -> {
             fireEvent(new DeleteEntitiesEvent<>(this, new ArrayList<>(selected)));
-            fireEvent(new RefreshEvent<>(this));
             dialog.close();
         });
-        confirm.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        confirm.addThemeVariants(ButtonVariant.LUMO_WARNING);
         return confirm;
     }
 }
