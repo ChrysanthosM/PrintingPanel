@@ -1,4 +1,4 @@
-package org.masouras.app.base.element.control;
+package org.masouras.app.base.element.util;
 
 import com.vaadin.copilot.shaded.commons.lang3.StringUtils;
 import com.vaadin.flow.component.AbstractField;
@@ -6,30 +6,16 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.SortDirection;
 import lombok.experimental.UtilityClass;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
-import org.springframework.data.domain.Sort;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 @UtilityClass
-public class GenericComponentUtils {
-
-    public static <T> Sort toSpringSort(List<GridSortOrder<T>> orders) {
-        return Sort.by(orders.stream()
-                .map(order -> new Sort.Order(
-                        order.getDirection() == SortDirection.ASCENDING ? Sort.Direction.ASC : Sort.Direction.DESC,
-                        order.getSorted().getKey()
-                ))
-                .toList()
-        );
-    }
+public class VaadinGridUtils {
 
     public static <T> void createGridColumn(Grid<T> grid, Field field, String propertyPath,
                                             BiFunction<T, Field, Object> valueExtractor, BiConsumer<Grid.Column<T>, String> filterConsumer) {
@@ -54,7 +40,6 @@ public class GenericComponentUtils {
             return defaultValue;
         }
     }
-
     public static Object getFieldValueOr(Field field, Object entity,
                                          Object defaultValue) {
         try {
@@ -116,5 +101,4 @@ public class GenericComponentUtils {
         }
         return filterComponent;
     }
-
 }

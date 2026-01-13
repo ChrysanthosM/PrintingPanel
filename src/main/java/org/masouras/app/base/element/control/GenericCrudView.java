@@ -6,6 +6,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.masouras.app.base.element.component.GenericEntityFormContainer;
 import org.masouras.app.base.element.component.GenericEntityGridContainer;
+import org.masouras.app.base.element.util.VaadinSpringBridge;
 import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,7 +61,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         Page<T> page = genericCrudService.list(PageRequest.of(
                 genericEntityGridContainer.getCurrentPage(),
                 genericEntityGridContainer.getPageSize(),
-                GenericComponentUtils.toSpringSort(genericEntityGridContainer.getGridState().getCurrentSortOrders())));
+                VaadinSpringBridge.toSpringSort(genericEntityGridContainer.getGridState().getCurrentSortOrders())));
         genericEntityGridContainer.setGridItems(page);
     }
 

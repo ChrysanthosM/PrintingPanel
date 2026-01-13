@@ -22,8 +22,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.masouras.app.base.element.util.VaadinSpringBridge;
 import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
-import org.masouras.model.mssql.schema.jpa.control.vaadin.FieldFactory;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 
 import java.lang.reflect.Field;
@@ -124,7 +124,7 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
                 .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
                 .forEach(keyField -> {
                     FormField formField = keyField.getAnnotation(FormField.class);
-                    Component component = FieldFactory.createField(keyField, formField);
+                    Component component = VaadinSpringBridge.createField(keyField, formField);
 
                     fieldComponents.put(keyField, component);
                     if (formField.key()) keyFields.add(keyField);
@@ -143,7 +143,7 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
     }
     private void addFieldComponent(Field field) {
         FormField formField = field.getAnnotation(FormField.class);
-        Component component = FieldFactory.createField(field, formField);
+        Component component = VaadinSpringBridge.createField(field, formField);
 
         fieldComponents.put(field, component);
         if (formField.key()) keyFields.add(field);
@@ -171,9 +171,9 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
     }
     private Binder.BindingBuilder<T, Object> getBindingBuilder(Binder.BindingBuilder<T, Object> binder, FormField formField, String field) {
         Binder.BindingBuilder<T, Object> builder = binder;
-        if (formField.required()) builder = builder.asRequired(formField.label() + " is required");
-        // 2. Hibernate Validator support
-        builder = builder.withValidator(new BeanValidator(entityClass, field));
+        if (formField.required()) builder = builder
+                .asRequired(formField.label() + " is required")
+                .withValidator(new BeanValidator(entityClass, field));
         return builder;
     }
 

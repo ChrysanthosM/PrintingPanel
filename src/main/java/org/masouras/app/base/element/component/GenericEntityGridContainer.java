@@ -8,7 +8,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.*;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -20,7 +19,7 @@ import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jspecify.annotations.NonNull;
-import org.masouras.app.base.element.control.GenericComponentUtils;
+import org.masouras.app.base.element.util.VaadinGridUtils;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Page;
 
@@ -121,18 +120,18 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                     Arrays.stream(embeddedField.getType().getDeclaredFields())
                             .filter(subField -> subField.isAnnotationPresent(FormField.class))
                             .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
-                            .forEach(formField -> GenericComponentUtils.createGridColumn(
+                            .forEach(formField -> VaadinGridUtils.createGridColumn(
                                     gridState.getGrid(), formField, embeddedField.getName() + "." + formField.getName(),
-                                    (entity, field) -> GenericComponentUtils.getEmbeddedFieldValueOr(embeddedField, field, entity, StringUtils.EMPTY), this::addFilterForColumn));
+                                    (entity, field) -> VaadinGridUtils.getEmbeddedFieldValueOr(embeddedField, field, entity, StringUtils.EMPTY), this::addFilterForColumn));
                 });
     }
     private void addGridColumnsAttributes() {
         Arrays.stream(entityClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(FormField.class))
                 .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
-                .forEach(formField -> GenericComponentUtils.createGridColumn(
+                .forEach(formField -> VaadinGridUtils.createGridColumn(
                         gridState.getGrid(), formField, formField.getName(),
-                        (entity, field) -> GenericComponentUtils.getFieldValueOr(field, entity, StringUtils.EMPTY), this::addFilterForColumn));
+                        (entity, field) -> VaadinGridUtils.getFieldValueOr(field, entity, StringUtils.EMPTY), this::addFilterForColumn));
     }
 
     private void addGridFilterRow() {
@@ -143,16 +142,16 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                 .forEach(entry -> gridState.getFilterRow().getCell(entry.getKey()).setComponent(entry.getValue()));
     }
     private void addFilterForColumn(Grid.Column<T> col, String property) {
-        Field field = GenericComponentUtils.resolveField(entityClass, property);
+        Field field = VaadinGridUtils.resolveField(entityClass, property);
         if (field == null) return;
-        gridState.getColumnFilters().put(col, GenericComponentUtils.createFilterComponent(field, _ -> applyColumnFilters()));
+        gridState.getColumnFilters().put(col, VaadinGridUtils.createFilterComponent(field, _ -> applyColumnFilters()));
         gridState.getColumnProperties().put(col, property);
     }
     private void applyColumnFilters() {
         if (clearingNow) return;
         List<T> filtered = gridState.getAllItems().stream()
                 .filter(item -> gridState.getColumnFilters().entrySet().stream().allMatch(entry -> {
-                    Object value = GenericComponentUtils.getNestedPropertyValue(item, gridState.getColumnProperties().get(entry.getKey()));
+                    Object value = VaadinGridUtils.getNestedPropertyValue(item, gridState.getColumnProperties().get(entry.getKey()));
                     if (entry.getValue() instanceof TextField tf) {
                         String filterText = tf.getValue();
                         if (StringUtils.isBlank(filterText)) return true;
