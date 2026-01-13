@@ -1,11 +1,15 @@
 package org.masouras.app.base.element.component;
 
 import com.vaadin.copilot.shaded.commons.lang3.StringUtils;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.*;
 import com.vaadin.flow.component.html.Span;
@@ -14,6 +18,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
@@ -25,6 +31,8 @@ import org.springframework.data.domain.Page;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public final class GenericEntityGridContainer<T> extends VerticalLayout {
     public static class AddEntityEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
@@ -209,6 +217,19 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         } finally {
             clearingNow = false;
         }
+    }
+    public Map<String, Supplier<Component>> getFilterComponentFactories() {
+        return gridState.getColumnProperties().entrySet().stream()
+                .filter(entry -> gridState.getColumnFilters().get(entry.getKey()) != null)
+                .collect(Collectors.toMap(
+                        Map.Entry::getValue,
+                        entry -> {
+                            Component original = gridState.getColumnFilters().get(entry.getKey());
+                            return () -> VaadinGridUtils.cloneFilterComponent(original);
+                        },
+                        (existing, _) -> existing,
+                        LinkedHashMap::new
+                ));
     }
 
     private void addGridEditDeleteColumn() {
