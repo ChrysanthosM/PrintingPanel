@@ -1,15 +1,10 @@
 package org.masouras.app.base.element.component;
 
 import com.vaadin.copilot.shaded.commons.lang3.StringUtils;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.ItemLabelGenerator;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.*;
 import com.vaadin.flow.component.html.Span;
@@ -18,8 +13,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
@@ -31,7 +24,6 @@ import org.springframework.data.domain.Page;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public final class GenericEntityGridContainer<T> extends VerticalLayout {
@@ -175,25 +167,6 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                 .toList();
         gridState.getGrid().setItems(filtered);
     }
-
-    private void addGridAddEntityColumn() {
-        Grid.Column<T> addCol = gridState.getGrid().addColumn(_ -> StringUtils.EMPTY)
-                .setHeader(new Span())
-                .setAutoWidth(true)
-                .setFlexGrow(0);
-        Button addBtn = new Button(new Icon(VaadinIcon.PLUS_CIRCLE), _ -> fireEvent(new AddEntityEvent<>(this)));
-        addBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-        addBtn.getElement().setProperty("title", "Add Row");
-        gridState.getFilterRow().getCell(addCol).setComponent(addBtn);
-        reorderColumnsSetFirst(addCol);
-    }
-    private void reorderColumnsSetFirst(Grid.Column<T> addCol) {
-        List<Grid.Column<T>> newOrder = new ArrayList<>();
-        newOrder.add(addCol);
-        gridState.getGrid().getColumns().stream().filter(c -> c != addCol).forEach(newOrder::add);
-        gridState.getGrid().setColumnOrder(newOrder);
-    }
-
     private void addGridClearAllFiltersButton() {
         Grid.Column<T> clearCol = gridState.getGrid().addColumn(_ -> StringUtils.EMPTY)
                 .setHeader(new Span())
@@ -218,18 +191,35 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
             clearingNow = false;
         }
     }
-    public Map<String, Supplier<Component>> getFilterComponentFactories() {
-        return gridState.getColumnProperties().entrySet().stream()
-                .filter(entry -> gridState.getColumnFilters().get(entry.getKey()) != null)
-                .collect(Collectors.toMap(
-                        Map.Entry::getValue,
-                        entry -> {
-                            Component original = gridState.getColumnFilters().get(entry.getKey());
-                            return () -> VaadinGridUtils.cloneFilterComponent(original);
-                        },
-                        (existing, _) -> existing,
-                        LinkedHashMap::new
-                ));
+    public Map<String, Object> getFilterValues() {
+        return gridState.getColumnFilters().entrySet().stream()
+                .filter(entry -> entry.getKey() != null && entry.getValue() != null)
+                .filter(entry -> gridState.getColumnProperties().get(entry.getKey()) != null)
+                .map(entry -> new AbstractMap.SimpleEntry<>(gridState.getColumnProperties().get(entry.getKey()), extractValue(entry.getValue())))
+                .filter(entry -> entry.getKey() != null)
+                .filter(entry -> entry.getValue() != null && StringUtils.isNotBlank(entry.getValue().toString()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+    private Object extractValue(Component c) {
+        return c instanceof HasValue<?, ?> hv ? hv.getValue() : null;
+    }
+
+    private void addGridAddEntityColumn() {
+        Grid.Column<T> addCol = gridState.getGrid().addColumn(_ -> StringUtils.EMPTY)
+                .setHeader(new Span())
+                .setAutoWidth(true)
+                .setFlexGrow(0);
+        Button addBtn = new Button(new Icon(VaadinIcon.PLUS_CIRCLE), _ -> fireEvent(new AddEntityEvent<>(this)));
+        addBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        addBtn.getElement().setProperty("title", "Add Row");
+        gridState.getFilterRow().getCell(addCol).setComponent(addBtn);
+        reorderColumnsSetFirst(addCol);
+    }
+    private void reorderColumnsSetFirst(Grid.Column<T> addCol) {
+        List<Grid.Column<T>> newOrder = new ArrayList<>();
+        newOrder.add(addCol);
+        gridState.getGrid().getColumns().stream().filter(c -> c != addCol).forEach(newOrder::add);
+        gridState.getGrid().setColumnOrder(newOrder);
     }
 
     private void addGridEditDeleteColumn() {

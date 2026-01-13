@@ -4,19 +4,13 @@ import com.vaadin.copilot.shaded.commons.lang3.StringUtils;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.ItemLabelGenerator;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.provider.Query;
 import lombok.experimental.UtilityClass;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
@@ -106,50 +100,5 @@ public class VaadinGridUtils {
             filterComponent = filter;
         }
         return filterComponent;
-    }
-
-    public static Component cloneFilterComponent(Component component) {
-        if (component instanceof ComboBox<?> original) {
-            ComboBox<Object> copy = new ComboBox<>(original.getLabel());
-
-            copy.setPlaceholder(original.getPlaceholder());
-            copy.setClearButtonVisible(original.isClearButtonVisible());
-            copy.setRequiredIndicatorVisible(original.isRequiredIndicatorVisible());
-            copy.setAllowCustomValue(original.isAllowCustomValue());
-            copy.setWidthFull();
-
-            // Copy item label generator
-            if (original.getItemLabelGenerator() != null) {
-                copy.setItemLabelGenerator((ItemLabelGenerator<Object>) original.getItemLabelGenerator());
-            }
-
-            // Copy items (this ALWAYS works)
-            if (original.getDataProvider() instanceof ListDataProvider<?> listProvider) {
-                copy.setItems(listProvider.getItems().toArray());
-            } else {
-                // Fallback: extract items manually
-                List<?> items = original.getDataProvider()
-                        .fetch(new Query<>())
-                        .toList();
-                copy.setItems(items);
-            }
-
-            return copy;
-        }
-
-        if (component instanceof TextField tf) {
-            TextField copy = new TextField(tf.getLabel());
-            copy.setPlaceholder(tf.getPlaceholder());
-            copy.setClearButtonVisible(tf.isClearButtonVisible());
-            return copy;
-        }
-
-        if (component instanceof Checkbox cb) {
-            return new Checkbox(cb.getLabel());
-        }
-        if (component instanceof DatePicker dp) {
-            return new DatePicker(dp.getLabel());
-        }
-        throw new IllegalArgumentException("Unsupported filter type: " + component.getClass());
     }
 }

@@ -1,6 +1,5 @@
 package org.masouras.app.base.element.control;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import jakarta.annotation.PostConstruct;
@@ -22,7 +21,6 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private final Class<T> entityClass;
     private final GenericCrudService<T, ID> genericCrudService;
     private final GenericEntityForm<T, ID> genericEntityForm;
-    private final GenericFilterPanel genericFilterPanel = new GenericFilterPanel("Filters");
 
     @Autowired private GenericContainerFactory genericContainerFactory;
     private GenericEntityGridContainer<T> genericEntityGridContainer;
@@ -58,12 +56,6 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         genericEntityGridContainer.addEditEntityListener(e -> editEntity(e.getEntity()));
         genericEntityGridContainer.addDeleteEntitiesListener(e -> deleteItems(e.getEntities()));
         genericEntityGridContainer.addRefreshListener(_ -> updateList());
-
-        genericFilterPanel.addOpenedChangeListener(event -> {
-            if (event.isOpened()) {
-                genericFilterPanel.initializeFilters(genericEntityGridContainer.getFilterComponentFactories());
-            }
-        });
     }
 
     private void updateList() {
@@ -71,7 +63,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
                         genericEntityGridContainer.getCurrentPage(),
                         genericEntityGridContainer.getPageSize(),
                         VaadinSpringBridge.toSpringSort(genericEntityGridContainer.getGridState().getCurrentSortOrders())),
-                VaadinSpringBridge.buildSpecification(entityClass, genericFilterPanel.getFilterValues()));
+                VaadinSpringBridge.buildSpecification(entityClass, genericEntityGridContainer.getFilterValues()));
         genericEntityGridContainer.setGridItems(page);
     }
 
