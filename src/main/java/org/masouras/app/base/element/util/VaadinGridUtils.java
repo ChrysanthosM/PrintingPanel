@@ -81,6 +81,24 @@ public class VaadinGridUtils {
         }
     }
 
+    public static Component createFilterComponent(Field field) {
+        Component filterComponent;
+        if (field.getType().isEnum()) {
+            ComboBox<Object> combo = new ComboBox<>();
+            combo.setItems(field.getType().getEnumConstants());
+            combo.setPlaceholder("Filter");
+            combo.setClearButtonVisible(true);
+            combo.setWidthFull();
+            filterComponent = combo;
+        } else {
+            TextField filter = new TextField();
+            filter.setPlaceholder("Filter");
+            filter.setClearButtonVisible(true);
+            filter.setWidthFull();
+            filterComponent = filter;
+        }
+        return filterComponent;
+    }
     public static Component createFilterComponent(Field field, HasValue.ValueChangeListener<? super AbstractField.ComponentValueChangeEvent<?, ?>> listener) {
         Component filterComponent;
         if (field.getType().isEnum()) {

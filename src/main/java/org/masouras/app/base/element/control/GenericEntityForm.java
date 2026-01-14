@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.masouras.app.base.element.util.VaadinSpringBridge;
 import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
@@ -104,20 +105,20 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
         idText.setReadOnly(true);
         idText.setEnabled(false);
 
-        binder.forField(idText).bind(entity -> {
-                    try {
-                        return StringUtils.trimToEmpty(idField.get(entity).toString());
-                    } catch (Exception e) {
-                        return StringUtils.EMPTY;
-                    }
-                },
-                (entity, value) -> {/* Read-only field, no action needed */ }
-        );
+        binder.forField(idText).bind(entity -> getIdFieldValueString(idField, entity), (_, _) -> {});
 
         this.idComponent = idText;
         add(idText);
         setColspan(idText, 2);
     }
+    private String getIdFieldValueString(@NonNull Field idField, T entity) {
+        try {
+            return StringUtils.trimToEmpty(idField.get(entity).toString());
+        } catch (Exception e) {
+            return StringUtils.EMPTY;
+        }
+    }
+
     private void buildEmbeddedIdFields(Field embeddedField) {
         Arrays.stream(embeddedField.getType().getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(FormField.class))
@@ -275,7 +276,7 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
     private boolean hasSimpleIdValue(T entity) {
         try {
             Field idField = Arrays.stream(entityClass.getDeclaredFields())
-                    .filter(f -> f.isAnnotationPresent(Id.class))
+                    .filter(field -> field.isAnnotationPresent(Id.class))
                     .findFirst()
                     .orElse(null);
             if (idField == null) return false;
