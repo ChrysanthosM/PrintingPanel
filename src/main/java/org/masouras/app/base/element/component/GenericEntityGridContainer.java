@@ -23,6 +23,7 @@ import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Page;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -180,14 +181,13 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     }
 
     private void addGridAddEntityColumn() {
-        Grid.Column<T> addCol = gridState.getGrid().addColumn(_ -> StringUtils.EMPTY)
-                .setHeader(new Span())
-                .setAutoWidth(true)
-                .setFlexGrow(0);
         Button addBtn = new Button(new Icon(VaadinIcon.PLUS_CIRCLE), _ -> fireEvent(new AddEntityEvent<>(this)));
         addBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         addBtn.getElement().setProperty("title", "Add Row");
-        gridState.getFilterRow().getCell(addCol).setComponent(addBtn);
+        Grid.Column<T> addCol = gridState.getGrid().addColumn(_ -> StringUtils.EMPTY)
+                .setHeader(addBtn)
+                .setAutoWidth(true)
+                .setFlexGrow(0);
         reorderColumnsSetFirst(addCol);
     }
     private void reorderColumnsSetFirst(Grid.Column<T> addCol) {
