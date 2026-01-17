@@ -7,7 +7,6 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
@@ -20,6 +19,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
+import org.jspecify.annotations.NonNull;
 import org.masouras.app.base.element.component.GenericEntityGridEvents.AddEntityEvent;
 import org.masouras.app.base.element.component.GenericEntityGridEvents.DeleteEntitiesEvent;
 import org.masouras.app.base.element.component.GenericEntityGridEvents.EditEntityEvent;
@@ -163,52 +163,27 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     }
 
     private void addGridEditDeleteColumn() {
-        Grid.Column<T> editDeleteCol = gridState.getGrid().addColumn(new ComponentRenderer<>(entity -> {
-                    HorizontalLayout actions = new HorizontalLayout(
-                            VaadinGridUtils.createButton(null, new Icon(VaadinIcon.EDIT), "Edit Row",
-                                    _ -> fireEvent(new EditEntityEvent<>(this, entity))),
-                            VaadinGridUtils.createButton(null, new Icon(VaadinIcon.TRASH), "Delete Row",
-                                    _ -> showDeleteDialog(entity)));
-                    actions.setWidthFull();
-                    actions.setJustifyContentMode(JustifyContentMode.END);
-                    actions.setSpacing(true);
-                    return actions;
-                }))
+        Grid.Column<T> editDeleteCol = gridState.getGrid()
+                .addColumn(new ComponentRenderer<>(this::getEditDeleteRowButtons))
                 .setHeader(VaadinGridUtils.createButton("Apply Filters/Reload", new Icon(VaadinIcon.REFRESH), "Reload Data",
                         _ -> fireEvent(new RefreshGridEntitiesEvent<>(this)), ButtonVariant.LUMO_TERTIARY_INLINE))
-                .setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
-        gridState.getFilterRow().getCell(editDeleteCol).setComponent(VaadinGridUtils.createButton("Delete Selected", new Icon(VaadinIcon.TRASH), "Delete Selected Rows",
-                _ -> showBulkDeleteDialog(), ButtonVariant.LUMO_WARNING));
+                .setAutoWidth(true)
+                .setTextAlign(ColumnTextAlign.END);
+
+        gridState.getFilterRow().getCell(editDeleteCol).setComponent(
+                VaadinGridUtils.createButton("Delete Selected", new Icon(VaadinIcon.TRASH), "Delete Selected Rows",
+                        _ -> GenericEntityGridDialogs.showBulkDeleteDialog(gridState.getGrid().getSelectedItems(), entities
+                                -> fireEvent(new DeleteEntitiesEvent<>(this, entities))), ButtonVariant.LUMO_WARNING));
     }
-
-
-    private void showDeleteDialog(T entity) {
-        Dialog dialog = new Dialog();
-        dialog.add("Are you sure you want to delete this record?");
-        dialog.add(new HorizontalLayout(
-                VaadinGridUtils.createButton("Delete", new Icon(VaadinIcon.TRASH), "Delete",
-                        _ -> {
-                            fireEvent(new DeleteEntitiesEvent<>(this, List.of(entity)));
-                            dialog.close();
-                        }, ButtonVariant.LUMO_WARNING),
-                VaadinGridUtils.createButton("Cancel", new Icon(VaadinIcon.LEVEL_RIGHT), "Cancel", _ -> dialog.close())
-        ));
-        dialog.open();
-    }
-    private void showBulkDeleteDialog() {
-        Set<T> selected = gridState.getGrid().getSelectedItems();
-        if (CollectionUtils.isEmpty(selected)) return;
-
-        Dialog dialog = new Dialog();
-        dialog.add("Delete " + selected.size() + " selected item" + (selected.size() == 1 ? StringUtils.EMPTY : "s") + "?");
-        dialog.add(new HorizontalLayout(
-                VaadinGridUtils.createButton("Delete", new Icon(VaadinIcon.TRASH), "Delete",
-                        _ -> {
-                            fireEvent(new DeleteEntitiesEvent<>(this, new ArrayList<>(selected)));
-                            dialog.close();
-                        }, ButtonVariant.LUMO_WARNING),
-                VaadinGridUtils.createButton("Cancel", new Icon(VaadinIcon.LEVEL_RIGHT), "Cancel", _ -> dialog.close())
-        ));
-        dialog.open();
+    private @NonNull HorizontalLayout getEditDeleteRowButtons(T entity) {
+        HorizontalLayout actions = new HorizontalLayout(
+                VaadinGridUtils.createButton(null, new Icon(VaadinIcon.EDIT), "Edit Row",
+                        _ -> fireEvent(new EditEntityEvent<>(this, entity))),
+                VaadinGridUtils.createButton(null, new Icon(VaadinIcon.TRASH), "Delete Row",
+                        _ -> GenericEntityGridDialogs.showDeleteDialog(entity, entities -> fireEvent(new DeleteEntitiesEvent<>(this, entities)))));
+        actions.setWidthFull();
+        actions.setJustifyContentMode(JustifyContentMode.END);
+        actions.setSpacing(true);
+        return actions;
     }
 }
