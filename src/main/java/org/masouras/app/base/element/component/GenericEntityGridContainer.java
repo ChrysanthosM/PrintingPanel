@@ -19,7 +19,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.jspecify.annotations.NonNull;
 import org.masouras.app.base.element.component.GenericEntityGridEvents.AddEntityEvent;
 import org.masouras.app.base.element.component.GenericEntityGridEvents.DeleteEntitiesEvent;
 import org.masouras.app.base.element.component.GenericEntityGridEvents.EditEntityEvent;
@@ -57,6 +56,19 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         gridState.getGrid().setItems(gridState.getAllItems());
         if (CollectionUtils.isNotEmpty(gridState.getCurrentSortOrders())) gridState.getGrid().sort(gridState.getCurrentSortOrders());
         paginationBar.updatePaginationBar((int) page.getTotalElements(), page.getTotalPages());
+    }
+
+    public Map<String, Object> getFilterValues() {
+        return gridState.getColumnFilters().entrySet().stream()
+                .filter(entry -> entry.getKey() != null && entry.getValue() != null)
+                .filter(entry -> gridState.getColumnProperties().get(entry.getKey()) != null)
+                .map(entry -> new AbstractMap.SimpleEntry<>(gridState.getColumnProperties().get(entry.getKey()), extractValue(entry.getValue())))
+                .filter(entry -> entry.getKey() != null)
+                .filter(entry -> entry.getValue() != null && StringUtils.isNotBlank(entry.getValue().toString()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+    private Object extractValue(Component component) {
+        return component instanceof HasValue<?, ?> hv ? hv.getValue() : null;
     }
 
     private void init() {
@@ -110,6 +122,12 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                 .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
                 .forEach(formField -> VaadinGridUtils.createGridColumn(gridState.getGrid(), null, formField, this::addFilterForColumn));
     }
+    private void addFilterForColumn(Grid.Column<T> col, String property) {
+        Field field = VaadinGridUtils.resolveField(entityClass, property);
+        if (field == null) return;
+        gridState.getColumnFilters().put(col, VaadinGridUtils.createFilterComponent(field));
+        gridState.getColumnProperties().put(col, property);
+    }
 
     private void addGridFilterRow() {
         gridState.setFilterRow(gridState.getGrid().appendHeaderRow());
@@ -117,12 +135,6 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                 .map(column -> Map.entry(column, gridState.getColumnFilters().get(column)))
                 .filter(entry -> entry.getValue() != null)
                 .forEach(entry -> gridState.getFilterRow().getCell(entry.getKey()).setComponent(entry.getValue()));
-    }
-    private void addFilterForColumn(Grid.Column<T> col, String property) {
-        Field field = VaadinGridUtils.resolveField(entityClass, property);
-        if (field == null) return;
-        gridState.getColumnFilters().put(col, VaadinGridUtils.createFilterComponent(field));
-        gridState.getColumnProperties().put(col, property);
     }
 
     private void addGridClearAllFiltersButton() {
@@ -138,19 +150,6 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         List<GridSortOrder<T>> sortOrders = gridState.getGrid().getSortOrder();
         fireEvent(new RefreshGridEntitiesEvent<>(this));
         gridState.getGrid().sort(sortOrders);
-    }
-
-    public Map<String, Object> getFilterValues() {
-        return gridState.getColumnFilters().entrySet().stream()
-                .filter(entry -> entry.getKey() != null && entry.getValue() != null)
-                .filter(entry -> gridState.getColumnProperties().get(entry.getKey()) != null)
-                .map(entry -> new AbstractMap.SimpleEntry<>(gridState.getColumnProperties().get(entry.getKey()), extractValue(entry.getValue())))
-                .filter(entry -> entry.getKey() != null)
-                .filter(entry -> entry.getValue() != null && StringUtils.isNotBlank(entry.getValue().toString()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-    private Object extractValue(Component component) {
-        return component instanceof HasValue<?, ?> hv ? hv.getValue() : null;
     }
 
     private void addGridAddEntityColumn() {
@@ -175,7 +174,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                         _ -> GenericEntityGridDialogs.showBulkDeleteDialog(gridState.getGrid().getSelectedItems(), entities
                                 -> fireEvent(new DeleteEntitiesEvent<>(this, entities))), ButtonVariant.LUMO_WARNING));
     }
-    private @NonNull HorizontalLayout getEditDeleteRowButtons(T entity) {
+    private HorizontalLayout getEditDeleteRowButtons(T entity) {
         HorizontalLayout actions = new HorizontalLayout(
                 VaadinGridUtils.createButton(null, new Icon(VaadinIcon.EDIT), "Edit Row",
                         _ -> fireEvent(new EditEntityEvent<>(this, entity))),

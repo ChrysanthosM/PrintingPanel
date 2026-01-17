@@ -6,6 +6,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
 import org.masouras.app.base.element.util.VaadinGridUtils;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class GenericEntityGridDialogs {
     public static <T> void showBulkDeleteDialog(Collection<T> selected, Consumer<List<T>> deleteAction) {
         if (selected == null || selected.isEmpty()) return;
         Dialog dialog = new Dialog();
-        dialog.add("Delete " + selected.size() + " selected item" + (selected.size() == 1 ? "" : "s") + "?");
+        dialog.add("Delete " + selected.size() + " selected item" + (selected.size() == 1 ? StringUtils.EMPTY : "s") + "?");
         dialog.add(new HorizontalLayout(
                 VaadinGridUtils.createButton("Delete", new Icon(VaadinIcon.TRASH), "Delete",
                         _ -> {
