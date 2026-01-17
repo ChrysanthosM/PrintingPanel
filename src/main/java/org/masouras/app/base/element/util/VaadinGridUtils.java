@@ -29,13 +29,14 @@ public class VaadinGridUtils {
         Grid.Column<T> col = grid.addColumn(entity -> getFieldValue(embeddedField, field, entity))
                 .setHeader((formField != null && StringUtils.isNotBlank(formField.label())) ? formField.label() : field.getName())
                 .setSortable(true)
+                .setComparator((_, _) -> 0)
                 .setKey(propertyPath);
+
         filterConsumer.accept(col, propertyPath);
     }
     private static Object getFieldValue(Field embeddedField, Field field, Object entity) {
         try {
             Object target = entity;
-
             if (embeddedField != null) {
                 target = embeddedField.get(entity);
                 if (target == null) {
@@ -50,7 +51,7 @@ public class VaadinGridUtils {
         }
     }
 
-        public static Field resolveField(Class<?> rootClass, String propertyPath) {
+    public static Field resolveField(Class<?> rootClass, String propertyPath) {
         try {
             String[] parts = propertyPath.split("\\.");
             Class<?> currentClass = rootClass;
@@ -62,22 +63,6 @@ public class VaadinGridUtils {
             }
             return field;
         } catch (NoSuchFieldException e) {
-            return null;
-        }
-    }
-
-    public static Object getNestedPropertyValue(Object rootObject, String propertyPath) {
-        if (rootObject == null || propertyPath == null) return null;
-        try {
-            Object current = rootObject;
-            for (String part : propertyPath.split("\\.")) {
-                if (current == null) return null;
-                Field field = current.getClass().getDeclaredField(part);
-                field.setAccessible(true);
-                current = field.get(current);
-            }
-            return current;
-        } catch (Exception e) {
             return null;
         }
     }
@@ -96,26 +81,6 @@ public class VaadinGridUtils {
             filter.setPlaceholder("Filter");
             filter.setClearButtonVisible(true);
             filter.setWidthFull();
-            filterComponent = filter;
-        }
-        return filterComponent;
-    }
-    public static Component createFilterComponent(Field field, HasValue.ValueChangeListener<? super AbstractField.ComponentValueChangeEvent<?, ?>> listener) {
-        Component filterComponent;
-        if (field.getType().isEnum()) {
-            ComboBox<Object> combo = new ComboBox<>();
-            combo.setItems(field.getType().getEnumConstants());
-            combo.setPlaceholder("Filter");
-            combo.setClearButtonVisible(true);
-            combo.setWidthFull();
-            combo.addValueChangeListener(listener);
-            filterComponent = combo;
-        } else {
-            TextField filter = new TextField();
-            filter.setPlaceholder("Filter");
-            filter.setClearButtonVisible(true);
-            filter.setWidthFull();
-            filter.addValueChangeListener(listener);
             filterComponent = filter;
         }
         return filterComponent;
