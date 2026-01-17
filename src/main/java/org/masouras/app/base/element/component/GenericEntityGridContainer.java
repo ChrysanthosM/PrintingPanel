@@ -2,7 +2,6 @@ package org.masouras.app.base.element.component;
 
 import com.vaadin.copilot.shaded.commons.lang3.StringUtils;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
@@ -21,6 +20,10 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
+import org.masouras.app.base.element.component.GenericEntityGridEvents.AddEntityEvent;
+import org.masouras.app.base.element.component.GenericEntityGridEvents.DeleteEntitiesEvent;
+import org.masouras.app.base.element.component.GenericEntityGridEvents.EditEntityEvent;
+import org.masouras.app.base.element.component.GenericEntityGridEvents.RefreshGridEntitiesEvent;
 import org.masouras.app.base.element.util.VaadinGridUtils;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Page;
@@ -30,31 +33,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public final class GenericEntityGridContainer<T> extends VerticalLayout {
-    public static class AddEntityEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
-        public AddEntityEvent(GenericEntityGridContainer<T> source) {
-            super(source, false);
-        }
-    }
-    public static class EditEntityEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
-        @Getter private final T entity;
-        public EditEntityEvent(GenericEntityGridContainer<T> source, T entity) {
-            super(source, false);
-            this.entity = entity;
-        }
-    }
-    public static class DeleteEntitiesEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
-        @Getter private final List<T> entities;
-        public DeleteEntitiesEvent(GenericEntityGridContainer<T> source, List<T> entities) {
-            super(source, false);
-            this.entities = entities;
-        }
-    }
-    public static class RefreshEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
-        public RefreshEvent(GenericEntityGridContainer<T> source) {
-            super(source, false);
-        }
-    }
-
     private final Class<T> entityClass;
     private final PaginationBar paginationBar;
 
@@ -65,27 +43,28 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         this.paginationBar = new PaginationBar(pageSize);
         init();
     }
-    private void init() {
-        configureGrid();
-        add(gridState.getGrid(), paginationBar);
-        setPadding(false);
-        setSpacing(false);
-        setWidthFull();
-    }
+
     public void addAddEntityListener(ComponentEventListener<AddEntityEvent<T>> listener) { addListener(AddEntityEvent.class, (ComponentEventListener) listener); }
     public void addEditEntityListener(ComponentEventListener<EditEntityEvent<T>> listener) { addListener(EditEntityEvent.class, (ComponentEventListener) listener); }
     public void addDeleteEntitiesListener(ComponentEventListener<DeleteEntitiesEvent<T>> listener) { addListener(DeleteEntitiesEvent.class, (ComponentEventListener) listener); }
-    public void addRefreshListener(ComponentEventListener<RefreshEvent<T>> listener) { addListener(RefreshEvent.class, (ComponentEventListener) listener); }
+    public void addRefreshGridEntitiesListener(ComponentEventListener<RefreshGridEntitiesEvent<T>> listener) { addListener(RefreshGridEntitiesEvent.class, (ComponentEventListener) listener); }
     public void addPageChangeListener(ComponentEventListener<PaginationBar.PageChangeEvent> listener) { paginationBar.addPageChangeListener(listener); }
     public int getCurrentPage() { return paginationBar.getCurrentPage(); }
     public int getPageSize() { return paginationBar.getPageSize(); }
-
 
     public void setGridItems(Page<T> page) {
         gridState.setAllItems(page.getContent());
         gridState.getGrid().setItems(gridState.getAllItems());
         if (CollectionUtils.isNotEmpty(gridState.getCurrentSortOrders())) gridState.getGrid().sort(gridState.getCurrentSortOrders());
         paginationBar.updatePaginationBar((int) page.getTotalElements(), page.getTotalPages());
+    }
+
+    private void init() {
+        configureGrid();
+        add(gridState.getGrid(), paginationBar);
+        setPadding(false);
+        setSpacing(false);
+        setWidthFull();
     }
 
     private void configureGrid() {
@@ -106,7 +85,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         gridState.getGrid().setMultiSort(true);
         gridState.getGrid().addSortListener(e -> {
             gridState.setCurrentSortOrders(e.getSortOrder());
-            fireEvent(new RefreshEvent<>(this));
+            fireEvent(new RefreshGridEntitiesEvent<>(this));
         });
     }
 
@@ -157,7 +136,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
             if (component instanceof ComboBox<?> comboBox) comboBox.clear();
         });
         List<GridSortOrder<T>> sortOrders = gridState.getGrid().getSortOrder();
-        fireEvent(new RefreshEvent<>(this));
+        fireEvent(new RefreshGridEntitiesEvent<>(this));
         gridState.getGrid().sort(sortOrders);
     }
 
@@ -196,7 +175,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                     return actions;
                 }))
                 .setHeader(VaadinGridUtils.createButton("Apply Filters/Reload", new Icon(VaadinIcon.REFRESH), "Reload Data",
-                        _ -> fireEvent(new RefreshEvent<>(this)), ButtonVariant.LUMO_TERTIARY_INLINE))
+                        _ -> fireEvent(new RefreshGridEntitiesEvent<>(this)), ButtonVariant.LUMO_TERTIARY_INLINE))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
         gridState.getFilterRow().getCell(editDeleteCol).setComponent(VaadinGridUtils.createButton("Delete Selected", new Icon(VaadinIcon.TRASH), "Delete Selected Rows",
                 _ -> showBulkDeleteDialog(), ButtonVariant.LUMO_WARNING));

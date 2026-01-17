@@ -51,7 +51,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private void bindComponents() {
         genericEntityGridContainer.addPageChangeListener(_ -> updateList());
         genericEntityFormContainer.setOnSaveCallback(this::updateList);
-        genericEntityGridContainer.addRefreshListener(_ -> updateList());
+        genericEntityGridContainer.addRefreshGridEntitiesListener(_ -> updateList());
 
         genericEntityGridContainer.addAddEntityListener(_ -> addEntity());
         genericEntityGridContainer.addEditEntityListener(e -> editEntity(e.getEntity()));
