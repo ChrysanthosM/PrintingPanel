@@ -59,9 +59,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     }
 
     private void updateList() {
-        Page<T> page = genericCrudService.findAll(PageRequest.of(
-                        genericEntityGridContainer.getCurrentPage(),
-                        genericEntityGridContainer.getPageSize()),
+        Page<T> page = genericCrudService.findAll(PageRequest.of(genericEntityGridContainer.getCurrentPage(), genericEntityGridContainer.getPageSize()),
                 VaadinSpringBridge.buildSpecification(entityClass, genericEntityGridContainer.getFilterValues(), genericEntityGridContainer.getGridState().getCurrentSortOrders()));
         genericEntityGridContainer.setGridItems(page);
     }
