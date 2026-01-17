@@ -122,18 +122,14 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
                     Arrays.stream(embeddedField.getType().getDeclaredFields())
                             .filter(subField -> subField.isAnnotationPresent(FormField.class))
                             .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
-                            .forEach(formField -> VaadinGridUtils.createGridColumn(
-                                    gridState.getGrid(), formField, embeddedField.getName() + "." + formField.getName(),
-                                    (entity, field) -> VaadinGridUtils.getEmbeddedFieldValueOr(embeddedField, field, entity, StringUtils.EMPTY), this::addFilterForColumn));
+                            .forEach(subField -> VaadinGridUtils.createGridColumn(gridState.getGrid(), embeddedField, subField, this::addFilterForColumn));
                 });
     }
     private void addGridColumnsAttributes() {
         Arrays.stream(entityClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(FormField.class))
                 .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
-                .forEach(formField -> VaadinGridUtils.createGridColumn(
-                        gridState.getGrid(), formField, formField.getName(),
-                        (entity, field) -> VaadinGridUtils.getFieldValueOr(field, entity, StringUtils.EMPTY), this::addFilterForColumn));
+                .forEach(formField -> VaadinGridUtils.createGridColumn(gridState.getGrid(), null, formField, this::addFilterForColumn));
     }
 
     private void addGridFilterRow() {

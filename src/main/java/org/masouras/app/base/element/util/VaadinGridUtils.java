@@ -16,45 +16,41 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 @UtilityClass
 public class VaadinGridUtils {
 
-    public static <T> void createGridColumn(Grid<T> grid, Field field, String propertyPath,
-                                            BiFunction<T, Field, Object> valueExtractor, BiConsumer<Grid.Column<T>, String> filterConsumer) {
+    public static <T> void createGridColumn(Grid<T> grid, Field embeddedField, Field field, BiConsumer<Grid.Column<T>, String> filterConsumer) {
         field.setAccessible(true);
         FormField formField = field.getAnnotation(FormField.class);
-        Grid.Column<T> col = grid.addColumn(entity -> {
-                    Object value = valueExtractor.apply(entity, field);
-                    return value != null ? value : StringUtils.EMPTY;
-                })
+        String propertyPath = (embeddedField == null) ? field.getName() : embeddedField.getName() + "." + field.getName();
+
+        Grid.Column<T> col = grid.addColumn(entity -> getFieldValue(embeddedField, field, entity))
                 .setHeader((formField != null && StringUtils.isNotBlank(formField.label())) ? formField.label() : field.getName())
                 .setSortable(true)
                 .setKey(propertyPath);
         filterConsumer.accept(col, propertyPath);
     }
-
-    public static Object getEmbeddedFieldValueOr(Field embeddedField, Field subField, Object entity,
-                                                 Object defaultValue) {
+    private static Object getFieldValue(Field embeddedField, Field field, Object entity) {
         try {
-            Object embedded = embeddedField.get(entity);
-            return embedded == null ? defaultValue : subField.get(embedded);
+            Object target = entity;
+
+            if (embeddedField != null) {
+                target = embeddedField.get(entity);
+                if (target == null) {
+                    return StringUtils.EMPTY;
+                }
+            }
+
+            Object value = field.get(target);
+            return value != null ? value : StringUtils.EMPTY;
         } catch (IllegalAccessException e) {
-            return defaultValue;
+            return StringUtils.EMPTY;
         }
     }
-    public static Object getFieldValueOr(Field field, Object entity,
-                                         Object defaultValue) {
-        try {
-            return field.get(entity);
-        } catch (IllegalAccessException e) {
-            return defaultValue;
-        }
-    }
 
-    public static Field resolveField(Class<?> rootClass, String propertyPath) {
+        public static Field resolveField(Class<?> rootClass, String propertyPath) {
         try {
             String[] parts = propertyPath.split("\\.");
             Class<?> currentClass = rootClass;
