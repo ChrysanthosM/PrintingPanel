@@ -3,7 +3,6 @@ package org.masouras.app.setup.ui;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.jspecify.annotations.Nullable;
 import org.masouras.app.base.element.control.GenericEntityForm;
-import org.masouras.model.mssql.schema.jpa.boundary.PrintingOptionsService;
 import org.masouras.model.mssql.schema.jpa.control.entity.PrintingOptionsEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,8 +12,8 @@ import org.springframework.stereotype.Component;
 public class PrintingOptionsForm extends GenericEntityForm<PrintingOptionsEntity, Long> {
 
     @Autowired
-    public PrintingOptionsForm(PrintingOptionsService service) {
-        super(PrintingOptionsEntity.class, service);
+    public PrintingOptionsForm() {
+        super(PrintingOptionsEntity.class);
     }
 
     @Override

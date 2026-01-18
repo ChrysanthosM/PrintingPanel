@@ -5,7 +5,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.masouras.app.base.element.control.GenericCrudView;
-import org.masouras.model.mssql.schema.jpa.boundary.PrintingOptionsService;
 import org.masouras.model.mssql.schema.jpa.control.entity.PrintingOptionsEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,8 +16,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PrintingOptionsCRUD extends GenericCrudView<PrintingOptionsEntity, Long> {
     @Autowired
-    public PrintingOptionsCRUD(PrintingOptionsService service, PrintingOptionsForm form) {
-        super("Printing Options", 10, PrintingOptionsEntity.class, service, form);
+    public PrintingOptionsCRUD() {
+        super("Printing Options", 10, PrintingOptionsEntity.class);
     }
 }
 

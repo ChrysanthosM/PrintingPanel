@@ -18,6 +18,7 @@ import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Id;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -32,9 +33,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public abstract class GenericEntityForm<T, ID> extends FormLayout {
-    private final Class<T> entityClass;
-    private final GenericCrudService<T, ID> genericCrudService;
+public abstract non-sealed class GenericEntityForm<T, ID> extends FormLayout implements GenericEntityFormStrategy<T, ID> {
+    @Getter private final Class<T> entityClass;
+
+    private GenericCrudService<T, ID> genericCrudService;
 
     private Binder<T> binder;
     private final Span validationStatus = new Span();
@@ -45,12 +47,21 @@ public abstract class GenericEntityForm<T, ID> extends FormLayout {
     private T entity;
     @Setter private Runnable onSaveCallback;
 
+    @Override
+    public GenericEntityForm<T, ID> getGenericEntityForm() {
+        return this;
+    }
+
     @PostConstruct
     private void init() {
         setVisible(false);
         addComponents();
         addStyle();
     }
+    public void initialize(GenericCrudService<T, ID> genericCrudService) {
+        this.genericCrudService = genericCrudService;
+    }
+
     private void addComponents() {
         this.binder = new Binder<>(this.entityClass);
         binder.setStatusLabel(validationStatus);
