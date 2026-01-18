@@ -3,7 +3,7 @@ import { injectGlobalWebcomponentCss } from 'Frontend/generated/jar-resources/th
 import { injectGlobalCss } from 'Frontend/generated/jar-resources/theme-util.js';
 
 import { css, unsafeCSS, registerStyles } from '@vaadin/vaadin-themable-mixin';
-import $cssFromFile_0 from 'Frontend/styles/ab-light.css?inline';
+import $cssFromFile_0 from 'Frontend/styles/bootstrap53-dark-vaadin.css?inline';
 import '@vaadin/field-highlighter/src/vaadin-field-highlighter.js';
 import '@vaadin/common-frontend/ConnectionIndicator.js';
 import '@vaadin/accordion/src/vaadin-accordion.js';

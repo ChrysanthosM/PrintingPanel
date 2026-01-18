@@ -1,0 +1,68 @@
+/* ==========================================
+   Tailwind 3.4 Dark Theme for Vaadin 25
+   ========================================== */
+
+:root {
+  --tw-bg: #0f172a;         /* slate-900 */
+  --tw-surface: #1e293b;    /* slate-800 */
+  --tw-surface-alt: #334155;/* slate-700 */
+
+  --tw-primary: #3b82f6;    /* blue-500 */
+  --tw-primary-hover: #2563eb; /* blue-600 */
+
+  --tw-text: #f1f5f9;       /* slate-100 */
+  --tw-border: #475569;     /* slate-600 */
+}
+
+/* Global */
+html, body, vaadin-app-layout {
+  background-color: var(--tw-bg);
+  color: var(--tw-text);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* Buttons */
+vaadin-button {
+  background-color: var(--tw-primary);
+  color: #fff;
+  border-radius: 0.5rem;
+}
+
+vaadin-button:hover {
+  background-color: var(--tw-primary-hover);
+}
+
+/* Inputs */
+vaadin-text-field::part(input-field),
+vaadin-combo-box::part(input-field),
+vaadin-select::part(input-field) {
+  background-color: var(--tw-surface);
+  border: 1px solid var(--tw-border);
+  border-radius: 0.375rem;
+}
+
+/* Tabs */
+vaadin-tab[selected] {
+  color: var(--tw-primary);
+  border-bottom: 2px solid var(--tw-primary);
+}
+
+/* Dialog */
+vaadin-dialog-overlay::part(content) {
+  background-color: var(--tw-surface-alt);
+  border-radius: 0.75rem;
+}
+
+/* Grid */
+vaadin-grid {
+  background-color: var(--tw-bg);
+  color: var(--tw-text);
+}
+
+vaadin-grid::part(header-cell) {
+  background-color: var(--tw-surface);
+}
+
+vaadin-grid::part(row):hover {
+  background-color: var(--tw-surface-alt);
+}

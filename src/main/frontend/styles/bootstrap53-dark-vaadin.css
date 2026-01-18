@@ -1,0 +1,330 @@
+/* ==========================================
+   Bootstrap 5.3 Dark Theme for Vaadin 25
+   ========================================== */
+
+/* Bootstrap Dark Color System */
+:root {
+  --bs-body-bg: #0d1117;
+  --bs-body-color: #e6edf3;
+
+  --bs-surface: #161b22;
+  --bs-border-color: #30363d;
+
+  --bs-primary: #0d6efd;
+  --bs-primary-hover: #0b5ed7;
+
+  --bs-secondary: #6c757d;
+  --bs-secondary-hover: #5c636a;
+
+  --bs-success: #198754;
+  --bs-danger: #dc3545;
+  --bs-warning: #ffc107;
+  --bs-info: #0dcaf0;
+}
+
+/* Global */
+html, body, vaadin-app-layout {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ==========================================
+   Buttons
+   ========================================== */
+vaadin-button {
+  background-color: var(--bs-primary);
+  color: #fff;
+  border-radius: 6px;
+}
+
+vaadin-button:hover {
+  background-color: var(--bs-primary-hover);
+}
+
+vaadin-button[theme~="secondary"] {
+  background-color: var(--bs-secondary);
+}
+
+vaadin-button[theme~="secondary"]:hover {
+  background-color: var(--bs-secondary-hover);
+}
+
+vaadin-button[theme~="success"] {
+  background-color: var(--bs-success);
+}
+
+vaadin-button[theme~="error"] {
+  background-color: var(--bs-danger);
+}
+
+/* ==========================================
+   Text Field / Password / Email / Number
+   ========================================== */
+vaadin-text-field::part(input-field),
+vaadin-password-field::part(input-field),
+vaadin-email-field::part(input-field),
+vaadin-number-field::part(input-field) {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+}
+
+vaadin-text-field::part(input-field):focus-within {
+  border-color: var(--bs-primary);
+}
+
+/* ==========================================
+   ComboBox
+   ========================================== */
+vaadin-combo-box::part(input-field) {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+}
+
+vaadin-combo-box-overlay {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+}
+
+/* ==========================================
+   DatePicker
+   ========================================== */
+vaadin-date-picker::part(input-field) {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+}
+
+vaadin-date-picker-overlay-content {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+}
+
+/* ==========================================
+   Checkbox / Radio
+   ========================================== */
+vaadin-checkbox::part(checkbox) {
+  background-color: var(--bs-surface);
+  border: 1px solid var(--bs-border-color);
+}
+
+vaadin-checkbox[checked]::part(checkbox) {
+  background-color: var(--bs-primary);
+}
+
+vaadin-radio-button::part(radio) {
+  border: 1px solid var(--bs-border-color);
+}
+
+vaadin-radio-button[checked]::part(radio) {
+  background-color: var(--bs-primary);
+}
+
+/* ==========================================
+   Select
+   ========================================== */
+vaadin-select::part(input-field) {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+}
+
+/* ==========================================
+   Tabs
+   ========================================== */
+vaadin-tabs {
+  background-color: var(--bs-surface);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+vaadin-tab {
+  color: var(--bs-body-color);
+}
+
+vaadin-tab[selected] {
+  border-bottom: 2px solid var(--bs-primary);
+  color: var(--bs-primary);
+}
+
+/* ==========================================
+   Dialog
+   ========================================== */
+vaadin-dialog-overlay::part(content) {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+}
+
+/* ==========================================
+   Notification
+   ========================================== */
+vaadin-notification-card {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+}
+
+/* ==========================================
+   Progress Bar
+   ========================================== */
+vaadin-progress-bar::part(bar) {
+  background-color: var(--bs-primary);
+}
+
+/* ==========================================
+   Accordion
+   ========================================== */
+vaadin-accordion-panel::part(summary) {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+}
+
+vaadin-accordion-panel::part(content) {
+  background-color: var(--bs-body-bg);
+}
+
+/* ==========================================
+   Split Layout
+   ========================================== */
+vaadin-split-layout {
+  background-color: var(--bs-body-bg);
+}
+
+vaadin-split-layout::part(splitter) {
+  background-color: var(--bs-border-color);
+}
+
+/* ==========================================
+   SideNav
+   ========================================== */
+vaadin-side-nav {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+}
+
+vaadin-side-nav-item::part(content):hover {
+  background-color: var(--bs-primary);
+  color: #fff;
+}
+
+/* ==========================================
+   AppLayout Navbar
+   ========================================== */
+vaadin-app-layout::part(navbar) {
+  background-color: var(--bs-surface);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+/* ==========================================
+   Grid
+   ========================================== */
+vaadin-grid {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+}
+
+vaadin-grid::part(header-cell) {
+  background-color: var(--bs-surface);
+  color: var(--bs-body-color);
+  border-bottom: 1px solid var(--bs-border-color);
+  font-weight: 600;
+}
+
+vaadin-grid::part(body-cell) {
+  background-color: var(--bs-body-bg);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+vaadin-grid::part(row):hover {
+  background-color: var(--bs-surface);
+}
+
+vaadin-grid::part(selected-row) {
+  background-color: var(--bs-primary);
+  color: #fff;
+}
+
+vaadin-grid-sorter::part(indicator) {
+  color: var(--bs-primary);
+}/* ==========================================
+    Material 3 Dark Theme for Vaadin 25
+    ========================================== */
+
+ :root {
+   --m3-bg: #121212;
+   --m3-surface: #1e1e1e;
+   --m3-surface-variant: #2c2c2c;
+
+   --m3-primary: #bb86fc;
+   --m3-primary-hover: #9a63db;
+
+   --m3-secondary: #03dac6;
+   --m3-error: #cf6679;
+
+   --m3-text: #ffffff;
+   --m3-border: #3a3a3a;
+ }
+
+ /* Global */
+ html, body, vaadin-app-layout {
+   background-color: var(--m3-bg);
+   color: var(--m3-text);
+   font-family: "Roboto", system-ui, sans-serif;
+ }
+
+ /* Buttons */
+ vaadin-button {
+   background-color: var(--m3-primary);
+   color: #000;
+   border-radius: 20px;
+ }
+
+ vaadin-button:hover {
+   background-color: var(--m3-primary-hover);
+ }
+
+ /* Text Fields */
+ vaadin-text-field::part(input-field) {
+   background-color: var(--m3-surface);
+   color: var(--m3-text);
+   border: 1px solid var(--m3-border);
+   border-radius: 12px;
+ }
+
+ /* ComboBox, Select, DatePicker */
+ vaadin-combo-box::part(input-field),
+ vaadin-select::part(input-field),
+ vaadin-date-picker::part(input-field) {
+   background-color: var(--m3-surface);
+   border: 1px solid var(--m3-border);
+ }
+
+ /* Tabs */
+ vaadin-tab[selected] {
+   color: var(--m3-primary);
+   border-bottom: 2px solid var(--m3-primary);
+ }
+
+ /* Dialog */
+ vaadin-dialog-overlay::part(content) {
+   background-color: var(--m3-surface-variant);
+   border-radius: 16px;
+ }
+
+ /* Grid */
+ vaadin-grid {
+   background-color: var(--m3-bg);
+   color: var(--m3-text);
+ }
+
+ vaadin-grid::part(header-cell) {
+   background-color: var(--m3-surface);
+   color: var(--m3-text);
+ }
+
+ vaadin-grid::part(row):hover {
+   background-color: var(--m3-surface-variant);
+ }

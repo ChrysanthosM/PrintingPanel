@@ -19,7 +19,7 @@ import com.vaadin.flow.server.menu.MenuEntry;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @Layout
-//@CssImport("./styles/ab-light.css")
+@CssImport("./styles/bootstrap53-dark-vaadin.css")
 public final class MainLayout extends AppLayout {
 
     MainLayout() {
