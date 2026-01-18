@@ -2,6 +2,7 @@ package org.masouras.app.base.ui;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -18,6 +19,7 @@ import com.vaadin.flow.server.menu.MenuEntry;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @Layout
+//@CssImport("./styles/ab-light.css")
 public final class MainLayout extends AppLayout {
 
     MainLayout() {
@@ -28,7 +30,7 @@ public final class MainLayout extends AppLayout {
     private Component createHeader() {
         var appLogo = VaadinIcon.ENVELOPE.create();
         appLogo.setSize("48px");
-        appLogo.setColor("blue");
+        appLogo.setColor("var(--ab-primary)");
 
         var appName = new Span(new H2("Menu"));
         appName.getStyle().setFontWeight(Style.FontWeight.BOLD);

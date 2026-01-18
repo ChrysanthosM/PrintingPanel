@@ -1,0 +1,73 @@
+/* ==========================================
+   Alpha Bank Light Theme
+   ========================================== */
+
+/* Brand color variables */
+:root {
+  --ab-bg: #FFFFFF;
+  --ab-surface: #F5F7FA;
+  --ab-primary: #0033A0;       /* Alpha Blue */
+  --ab-primary-light: #009CDE; /* Accent Blue */
+  --ab-text: #00205B;          /* Dark Navy */
+  --ab-border: #D0D4DB;
+}
+
+/* Global background + text */
+html, body, vaadin-app-layout {
+  background-color: var(--ab-bg);
+  color: var(--ab-text);
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ab-primary);
+}
+
+/* Buttons */
+vaadin-button {
+  background-color: var(--ab-primary);
+  color: #FFFFFF;
+  border-radius: 6px;
+}
+
+vaadin-button:hover {
+  background-color: var(--ab-primary-light);
+}
+
+/* Text fields */
+vaadin-text-field::part(input-field) {
+  background-color: var(--ab-surface);
+  color: var(--ab-text);
+  border: 1px solid var(--ab-border);
+}
+
+vaadin-text-field::part(input-field):focus-within {
+  border-color: var(--ab-primary);
+}
+
+/* SideNav */
+vaadin-side-nav {
+  background-color: var(--ab-surface);
+  color: var(--ab-text);
+}
+
+vaadin-side-nav-item::part(content) {
+  color: var(--ab-text);
+}
+
+vaadin-side-nav-item::part(content):hover {
+  background-color: var(--ab-primary-light);
+  color: #FFFFFF;
+}
+
+/* AppLayout drawer header */
+vaadin-app-layout::part(navbar) {
+  background-color: var(--ab-primary);
+  color: #FFFFFF;
+}
+
+/* Icons */
+vaadin-icon {
+  color: var(--ab-primary);
+}

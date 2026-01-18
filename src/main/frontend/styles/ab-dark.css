@@ -1,0 +1,54 @@
+/* ===========================
+   Alpha Bank Dark Theme
+   =========================== */
+
+/* Global variables */
+:root {
+  --ab-bg: #000000;
+  --ab-surface: #00205B;
+  --ab-primary: #009CDE;
+  --ab-primary-dark: #0033A0;
+  --ab-text: #FFFFFF;
+}
+
+/* App background */
+html, body, vaadin-app-layout {
+  background-color: var(--ab-bg);
+  color: var(--ab-text);
+}
+
+/* Buttons */
+vaadin-button {
+  background-color: var(--ab-primary);
+  color: var(--ab-text);
+}
+
+vaadin-button:hover {
+  background-color: var(--ab-primary-dark);
+}
+
+/* Text fields */
+vaadin-text-field::part(input-field) {
+  background-color: var(--ab-surface);
+  color: var(--ab-text);
+  border: 1px solid var(--ab-primary);
+}
+
+/* SideNav */
+vaadin-side-nav {
+  background-color: var(--ab-surface);
+  color: var(--ab-text);
+}
+
+vaadin-side-nav-item::part(content) {
+  color: var(--ab-text);
+}
+
+vaadin-side-nav-item::part(content):hover {
+  background-color: var(--ab-primary-dark);
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ab-text);
+}
