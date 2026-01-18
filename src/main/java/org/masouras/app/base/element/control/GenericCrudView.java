@@ -34,10 +34,7 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     private void init() {
         genericCrudService = genericCrudServiceFactory.getGenericCrudService(entityClass);
         genericEntityGridContainer = genericContainerFactory.createGenericEntityGridContainer(entityClass, pageSize);
-
-        GenericEntityForm<T, ID> genericEntityForm = genericEntityFormFactory.getGenericEntityForm(entityClass);
-        genericEntityForm.initialize(genericCrudService);
-        genericEntityFormContainer = genericContainerFactory.createGenericEntityFormContainer(genericEntityForm);
+        genericEntityFormContainer = genericContainerFactory.createGenericEntityFormContainer(genericEntityFormFactory.getGenericEntityForm(entityClass, genericCrudService));
         initMain();
     }
 

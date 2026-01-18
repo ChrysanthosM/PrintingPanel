@@ -1,6 +1,7 @@
 package org.masouras.app.base.element.control;
 
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,9 +21,11 @@ public class GenericEntityFormFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, ID> GenericEntityForm<T, ID> getGenericEntityForm(Class<T> entityClass) {
-        return ((GenericEntityFormStrategy<T, ID>) Optional.ofNullable(genericCrudFormStrategyMap.get(entityClass))
+    public <T, ID> GenericEntityForm<T, ID> getGenericEntityForm(Class<T> entityClass, GenericCrudService<T, ID> genericCrudService) {
+        GenericEntityForm<T, ID> genericEntityForm = ((GenericEntityFormStrategy<T, ID>) Optional.ofNullable(genericCrudFormStrategyMap.get(entityClass))
                 .orElseThrow(() -> new IllegalStateException("No form found"))
         ).getGenericEntityForm();
+        genericEntityForm.setGenericCrudService(genericCrudService);
+        return genericEntityForm;
     }
 }

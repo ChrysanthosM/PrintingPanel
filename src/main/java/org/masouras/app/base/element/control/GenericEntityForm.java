@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public abstract non-sealed class GenericEntityForm<T, ID> extends FormLayout implements GenericEntityFormStrategy<T, ID> {
     @Getter private final Class<T> entityClass;
 
-    private GenericCrudService<T, ID> genericCrudService;
+    @Setter private GenericCrudService<T, ID> genericCrudService;
 
     private Binder<T> binder;
     private final Span validationStatus = new Span();
@@ -57,9 +57,6 @@ public abstract non-sealed class GenericEntityForm<T, ID> extends FormLayout imp
         setVisible(false);
         addComponents();
         addStyle();
-    }
-    public void initialize(GenericCrudService<T, ID> genericCrudService) {
-        this.genericCrudService = genericCrudService;
     }
 
     private void addComponents() {
