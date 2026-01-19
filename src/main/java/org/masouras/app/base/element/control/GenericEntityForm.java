@@ -68,7 +68,7 @@ public abstract non-sealed class GenericEntityForm<T, ID> extends FormLayout imp
         add(validationStatus);
     }
     private void addStyle() {
-        validationStatus.getStyle().set("color", "var(--lumo-error-text-color)");
+        validationStatus.addClassName("error-text");
         setResponsiveSteps(
                 new ResponsiveStep("0", 1),
                 new ResponsiveStep("600px", 2)

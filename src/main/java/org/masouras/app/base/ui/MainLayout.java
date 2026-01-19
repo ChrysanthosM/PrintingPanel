@@ -30,7 +30,6 @@ public final class MainLayout extends AppLayout {
     private Component createHeader() {
         var appLogo = VaadinIcon.ENVELOPE.create();
         appLogo.setSize("48px");
-        appLogo.setColor("var(--ab-primary)");
 
         var appName = new Span(new H2("Menu"));
         appName.getStyle().setFontWeight(Style.FontWeight.BOLD);
