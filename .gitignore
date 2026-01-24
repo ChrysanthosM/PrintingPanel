@@ -1,2 +1,44 @@
-# Project exclude paths
-/target/
+############################
+# IntelliJ IDEA
+############################
+.idea/
+*.iml
+out/
+
+############################
+# Maven
+############################
+target/
+
+############################
+# Vaadin
+############################
+node_modules/
+frontend/generated/
+target/frontend/
+vite.generated.ts
+pnpm-lock.yaml
+package-lock.json
+webpack.generated.js
+vite.config.ts
+types.d.ts
+
+############################
+# Logs
+############################
+*.log
+logs/
+
+############################
+# OS Files
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# Environment / Secrets
+############################
+*.env
+.env.*
+application-local.yml
+application-local.properties
