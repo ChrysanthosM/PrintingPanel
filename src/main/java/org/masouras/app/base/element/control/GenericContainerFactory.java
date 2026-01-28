@@ -1,5 +1,6 @@
 package org.masouras.app.base.element.control;
 
+import org.masouras.app.base.element.component.GenericDtoGridContainer;
 import org.masouras.app.base.element.component.GenericEntityFormContainer;
 import org.masouras.app.base.element.component.GenericEntityGridContainer;
 import org.springframework.stereotype.Component;
@@ -11,5 +12,9 @@ public class GenericContainerFactory {
     }
     public <T, ID> GenericEntityFormContainer<T, ID> createGenericEntityFormContainer(GenericEntityForm<T, ID> form) {
         return new GenericEntityFormContainer<>(form);
+    }
+
+    public <T> GenericDtoGridContainer<T> createGenericDtoGridContainer(Class<T> dtoClass) {
+        return new GenericDtoGridContainer<>(dtoClass);
     }
 }

@@ -19,10 +19,10 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.masouras.app.base.element.component.GenericEntityGridEvents.AddEntityEvent;
-import org.masouras.app.base.element.component.GenericEntityGridEvents.DeleteEntitiesEvent;
-import org.masouras.app.base.element.component.GenericEntityGridEvents.EditEntityEvent;
-import org.masouras.app.base.element.component.GenericEntityGridEvents.RefreshGridEntitiesEvent;
+import org.masouras.app.base.element.component.GenericGridEvents.AddEntityEvent;
+import org.masouras.app.base.element.component.GenericGridEvents.DeleteEntitiesEvent;
+import org.masouras.app.base.element.component.GenericGridEvents.EditEntityEvent;
+import org.masouras.app.base.element.component.GenericGridEvents.RefreshGridEntitiesEvent;
 import org.masouras.app.base.element.util.VaadinGridUtils;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Page;
@@ -35,7 +35,8 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     private final Class<T> entityClass;
     private final PaginationBar paginationBar;
 
-    @Getter private final GenericEntityGridState<T> gridState = new GenericEntityGridState<>();
+    @Getter
+    private final GenericGridState<T> gridState = new GenericGridState<>();
 
     public GenericEntityGridContainer(Class<T> entityClass, int pageSize) {
         this.entityClass = entityClass;

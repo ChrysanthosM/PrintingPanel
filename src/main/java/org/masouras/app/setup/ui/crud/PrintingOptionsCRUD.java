@@ -1,4 +1,4 @@
-package org.masouras.app.setup.ui;
+package org.masouras.app.setup.ui.crud;
 
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;

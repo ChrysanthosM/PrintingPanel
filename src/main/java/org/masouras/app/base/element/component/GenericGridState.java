@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Getter @Setter
-public final class GenericEntityGridState<T> {
+public final class GenericGridState<T> {
     private final Grid<T> grid = new Grid<>();
     private final Map<Grid.Column<T>, String> columnProperties = new HashMap<>();
     private final Map<Grid.Column<T>, Component> columnFilters = new HashMap<>();

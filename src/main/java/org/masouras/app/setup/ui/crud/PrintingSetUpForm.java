@@ -1,4 +1,4 @@
-package org.masouras.app.setup.ui;
+package org.masouras.app.setup.ui.crud;
 
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.jspecify.annotations.Nullable;

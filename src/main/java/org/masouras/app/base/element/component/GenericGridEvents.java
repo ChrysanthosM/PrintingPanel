@@ -8,7 +8,7 @@ import lombok.experimental.UtilityClass;
 import java.util.List;
 
 @UtilityClass
-public class GenericEntityGridEvents {
+public class GenericGridEvents {
     public static class AddEntityEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
         public AddEntityEvent(GenericEntityGridContainer<T> source) {
             super(source, false);
@@ -33,6 +33,12 @@ public class GenericEntityGridEvents {
 
     public static class RefreshGridEntitiesEvent<T> extends ComponentEvent<GenericEntityGridContainer<T>> {
         public RefreshGridEntitiesEvent(GenericEntityGridContainer<T> source) {
+            super(source, false);
+        }
+    }
+
+    public static class RefreshGridDtoEvent<T> extends ComponentEvent<GenericDtoGridContainer<T>> {
+        public RefreshGridDtoEvent(GenericDtoGridContainer<T> source) {
             super(source, false);
         }
     }
