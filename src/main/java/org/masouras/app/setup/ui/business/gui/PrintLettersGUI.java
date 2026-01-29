@@ -28,13 +28,6 @@ public class PrintLettersGUI extends GenericDtoView<ListToPrintDTO> {
 
     @Override
     protected List<ListToPrintDTO> loadAllItems() {
-        return listToPrintService.getListToPrintDTOs()
-                .stream()
-                .map(item -> new ListToPrintDTO(
-                        item.getRecId(),
-                        item.getFinalContentId(),
-                        item.getActivityType()
-                ))
-                .toList();
+        return listToPrintService.getListToPrintDTOs();
     }
 }
