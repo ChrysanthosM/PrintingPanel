@@ -45,8 +45,7 @@ public abstract class GenericDtoView<T> extends VerticalLayout {
     }
 
     private void updateList() {
-        List<T> items = loadAllItems();
-        genericDtoGridContainer.setGridItems(items);
+        genericDtoGridContainer.setGridItems(loadAllItems());
     }
     protected abstract List<T> loadAllItems();
 }

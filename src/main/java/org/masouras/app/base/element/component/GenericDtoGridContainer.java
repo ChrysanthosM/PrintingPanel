@@ -40,8 +40,7 @@ public final class GenericDtoGridContainer<T> extends VerticalLayout {
 
     public void setGridItems(List<T> items) {
         gridState.setAllItems(items);
-        gridState.getGrid().setItems(gridState.getAllItems());
-
+        gridState.getGrid().setItems(VaadinGridUtils.applyFilters(items, getFilterValues()));
         if (CollectionUtils.isNotEmpty(gridState.getCurrentSortOrders())) gridState.getGrid().sort(gridState.getCurrentSortOrders());
     }
 
@@ -107,7 +106,7 @@ public final class GenericDtoGridContainer<T> extends VerticalLayout {
     private void addGridFilterRow() {
         gridState.setFilterRow(gridState.getGrid().appendHeaderRow());
 
-        gridState.getColumnProperties().forEach((column, property) -> {
+        gridState.getColumnProperties().forEach((column, _) -> {
             Component filter = gridState.getColumnFilters().get(column);
             if (filter != null) {
                 gridState.getFilterRow().getCell(column).setComponent(filter);

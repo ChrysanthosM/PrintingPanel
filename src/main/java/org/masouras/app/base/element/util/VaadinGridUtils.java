@@ -12,10 +12,12 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.textfield.TextField;
 import jakarta.annotation.Nullable;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.collections4.CollectionUtils;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
@@ -101,5 +103,44 @@ public class VaadinGridUtils {
                 grid.getColumns().stream().filter(column -> column != setFirstColumn)
         ).toList();
         grid.setColumnOrder(newOrder);
+    }
+
+    public static <T> List<T> applyFilters(List<T> items, Map<String, Object> filters) {
+        if (CollectionUtils.isEmpty(items)) return items;
+        return items.stream()
+                .filter(item -> matchesFilters(item, filters))
+                .toList();
+    }
+    private static <T> boolean matchesFilters(T item, Map<String, Object> filters) {
+        return filters.entrySet().stream().allMatch(entry -> {
+            Object filterValue = entry.getValue();
+            if (filterValue == null || filterValue.toString().isBlank()) {
+                return true;
+            }
+
+            Object fieldValue = getPropertyValue(item, entry.getKey());
+            if (fieldValue == null) {
+                return false;
+            }
+
+            return fieldValue.toString().toLowerCase().contains(filterValue.toString().toLowerCase());
+        });
+    }
+    private static Object getPropertyValue(Object bean, String propertyPath) {
+        try {
+            String[] parts = propertyPath.split("\\.");
+            Object current = bean;
+            for (String part : parts) {
+                if (current == null) {
+                    return null;
+                }
+                Field field = current.getClass().getDeclaredField(part);
+                field.setAccessible(true);
+                current = field.get(current);
+            }
+            return current;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            return null;
+        }
     }
 }
