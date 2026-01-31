@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @UtilityClass
-public class GenericEntityGridDialogs {
+public class GenericGridDialogs {
 
     public static <T> void showDeleteDialog(T entity, Consumer<List<T>> deleteAction) {
         Dialog dialog = new Dialog();

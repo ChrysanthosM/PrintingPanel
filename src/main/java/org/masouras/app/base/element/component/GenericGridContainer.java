@@ -110,12 +110,12 @@ public final class GenericGridContainer<T> extends VerticalLayout {
     // INITIALIZATION
     // ---------------------------
     private void init() {
-        configureGrid();
-        add(gridState.getGrid());
-
         if (gridState.getGridMode() == GenericGridState.GridMode.ENTITY_MODE) {
             add(paginationBar);
         }
+
+        configureGrid();
+        add(gridState.getGrid());
 
         setPadding(false);
         setSpacing(false);
@@ -233,7 +233,7 @@ public final class GenericGridContainer<T> extends VerticalLayout {
 
         gridState.getFilterRow().getCell(lastCol).setComponent(
                 VaadinGridUtils.createButton("Delete Selected", new Icon(VaadinIcon.TRASH), "Delete Selected Rows",
-                        _ -> GenericEntityGridDialogs.showBulkDeleteDialog(gridState.getGrid().getSelectedItems(),
+                        _ -> GenericGridDialogs.showBulkDeleteDialog(gridState.getGrid().getSelectedItems(),
                                 entities -> fireEvent(new GenericGridEvents.DeleteEntitiesEvent<>(this, entities))
                         ), ButtonVariant.LUMO_WARNING));
     }
@@ -253,7 +253,7 @@ public final class GenericGridContainer<T> extends VerticalLayout {
                 VaadinGridUtils.createButton(null, new Icon(VaadinIcon.EDIT), "Edit Row",
                         _ -> fireEvent(new GenericGridEvents.EditEntityEvent<>(this, entity))),
                 VaadinGridUtils.createButton(null, new Icon(VaadinIcon.TRASH), "Delete Row",
-                        _ -> GenericEntityGridDialogs.showDeleteDialog(entity, entities -> fireEvent(new GenericGridEvents.DeleteEntitiesEvent<>(this, entities)))));
+                        _ -> GenericGridDialogs.showDeleteDialog(entity, entities -> fireEvent(new GenericGridEvents.DeleteEntitiesEvent<>(this, entities)))));
         actions.setWidthFull();
         actions.setJustifyContentMode(JustifyContentMode.END);
         actions.setSpacing(true);
