@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 public final class GenericGridContainer<T> extends VerticalLayout {
     private final Class<T> type;
-    private final PaginationBar paginationBar; // only used in ENTITY mode
+    private final PaginationBar paginationBar;
     @Getter
     private final GenericGridState<T> gridState;
 
@@ -71,10 +71,9 @@ public final class GenericGridContainer<T> extends VerticalLayout {
     // ---------------------------
     @SuppressWarnings("unchecked")
     public void setGridItems(Object data) {
-        if (gridState.getGridMode() == GenericGridState.GridMode.ENTITY_MODE) {
-            setEntityItems((Page<T>) data);
-        } else {
-            setDtoItems((List<T>) data);
+        switch (gridState.getGridMode()) {
+            case ENTITY_MODE -> setEntityItems((Page<T>) data);
+            case DTO_MODE -> setDtoItems((List<T>) data);
         }
     }
     private void setEntityItems(Page<T> page) {
@@ -158,23 +157,23 @@ public final class GenericGridContainer<T> extends VerticalLayout {
     }
     private void addEmbeddedIdColumns() {
         Arrays.stream(type.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(EmbeddedId.class))
+                .filter(field -> field.isAnnotationPresent(EmbeddedId.class))
                 .forEach(embeddedField -> {
                     embeddedField.setAccessible(true);
                     Arrays.stream(embeddedField.getType().getDeclaredFields())
-                            .filter(sf -> sf.isAnnotationPresent(FormField.class))
-                            .sorted(Comparator.comparingInt(f -> f.getAnnotation(FormField.class).order()))
-                            .forEach(sf -> VaadinGridUtils.createGridColumn(
-                                    gridState.getGrid(), embeddedField, sf, this::addFilterForColumn
+                            .filter(field -> field.isAnnotationPresent(FormField.class))
+                            .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
+                            .forEach(field -> VaadinGridUtils.createGridColumn(
+                                    gridState.getGrid(), embeddedField, field, this::addFilterForColumn
                             ));
                 });
     }
     private void addAttributeColumns() {
         Arrays.stream(type.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(FormField.class))
-                .sorted(Comparator.comparingInt(f -> f.getAnnotation(FormField.class).order()))
-                .forEach(f -> VaadinGridUtils.createGridColumn(
-                        gridState.getGrid(), null, f, this::addFilterForColumn
+                .filter(field -> field.isAnnotationPresent(FormField.class))
+                .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
+                .forEach(field -> VaadinGridUtils.createGridColumn(
+                        gridState.getGrid(), null, field, this::addFilterForColumn
                 ));
     }
     private void addFilterForColumn(Grid.Column<T> col, String property) {
@@ -198,14 +197,8 @@ public final class GenericGridContainer<T> extends VerticalLayout {
     // CLEAR FILTERS
     // ---------------------------
     private void addGridClearAllFiltersButton() {
-        Button clearBtn = VaadinGridUtils.createButton(
-                null,
-                new Icon(VaadinIcon.CLOSE_CIRCLE),
-                "Clear all filters",
-                _ -> clearAllFilters(),
-                ButtonVariant.LUMO_TERTIARY_INLINE
-        );
-
+        Button clearBtn = VaadinGridUtils.createButton(null, new Icon(VaadinIcon.CLOSE_CIRCLE), "Clear all filters",
+                _ -> clearAllFilters(), ButtonVariant.LUMO_TERTIARY_INLINE);
         Grid.Column<T> firstCol = gridState.getGrid().getColumns().getFirst();
         gridState.getFilterRow().getCell(firstCol).setComponent(clearBtn);
     }
@@ -222,12 +215,12 @@ public final class GenericGridContainer<T> extends VerticalLayout {
     }
 
     // ---------------------------
-    // LAST COLUMN (Reload)
+    // LAST COLUMN
     // ---------------------------
     private void addGridLastColumn() {
         switch (gridState.getGridMode()) {
             case ENTITY_MODE -> addGridLastColumnEntity();
-            case DTO_MODE    -> addGridLastColumnDTO();
+            case DTO_MODE -> addGridLastColumnDTO();
         }
     }
     private void addGridLastColumnEntity() {
