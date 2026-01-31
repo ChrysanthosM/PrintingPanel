@@ -14,6 +14,9 @@ import java.util.Map;
 
 @Getter @Setter
 public final class GenericGridState<T> {
+    public enum GridMode { ENTITY_MODE, DTO_MODE }
+    private final GridMode gridMode;
+
     private final Grid<T> grid = new Grid<>();
     private final Map<Grid.Column<T>, String> columnProperties = new HashMap<>();
     private final Map<Grid.Column<T>, Component> columnFilters = new HashMap<>();
@@ -21,4 +24,8 @@ public final class GenericGridState<T> {
     private HeaderRow filterRow;
     private List<GridSortOrder<T>> currentSortOrders = new ArrayList<>();
     private List<T> allItems;
+
+    public GenericGridState(GridMode gridMode) {
+        this.gridMode = gridMode;
+    }
 }

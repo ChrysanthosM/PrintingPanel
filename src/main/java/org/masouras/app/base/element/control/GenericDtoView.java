@@ -4,7 +4,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.masouras.app.base.element.component.GenericDtoGridContainer;
+import org.masouras.app.base.element.component.GenericGridContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -17,11 +17,11 @@ public abstract class GenericDtoView<T> extends VerticalLayout {
     @Autowired
     private GenericContainerFactory genericContainerFactory;
 
-    private GenericDtoGridContainer<T> genericDtoGridContainer;
+    private GenericGridContainer<T> genericGridContainer;
 
     @PostConstruct
     private void init() {
-        genericDtoGridContainer = genericContainerFactory.createGenericDtoGridContainer(dtoClass);
+        genericGridContainer = genericContainerFactory.createDtoGrid(dtoClass);
         initMain();
     }
 
@@ -37,15 +37,15 @@ public abstract class GenericDtoView<T> extends VerticalLayout {
     }
 
     private void addComponents() {
-        add(new H2(title), genericDtoGridContainer);
+        add(new H2(title), genericGridContainer);
     }
 
     private void bindComponents() {
-        genericDtoGridContainer.addRefreshListener(_ -> updateList());
+        genericGridContainer.addRefreshListener(_ -> updateList());
     }
 
     private void updateList() {
-        genericDtoGridContainer.setGridItems(loadAllItems());
+        genericGridContainer.setGridItems(loadAllItems());
     }
     protected abstract List<T> loadAllItems();
 }

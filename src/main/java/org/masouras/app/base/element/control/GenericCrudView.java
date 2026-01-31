@@ -5,7 +5,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.masouras.app.base.element.component.GenericEntityFormContainer;
-import org.masouras.app.base.element.component.GenericEntityGridContainer;
+import org.masouras.app.base.element.component.GenericGridContainer;
 import org.masouras.app.base.element.util.VaadinSpringBridge;
 import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +26,14 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
 
     private GenericCrudService<T, ID> genericCrudService;
 
-    private GenericEntityGridContainer<T> genericEntityGridContainer;
+    private GenericGridContainer<T> genericGridContainer;
     private GenericEntityFormContainer<T, ID> genericEntityFormContainer;
 
 
     @PostConstruct
     private void init() {
         genericCrudService = genericCrudServiceFactory.getGenericCrudService(entityClass);
-        genericEntityGridContainer = genericContainerFactory.createGenericEntityGridContainer(entityClass, pageSize);
+        genericGridContainer = genericContainerFactory.createEntityGrid(entityClass, pageSize);
         genericEntityFormContainer = genericContainerFactory.createGenericEntityFormContainer(genericEntityFormFactory.getGenericEntityForm(entityClass, genericCrudService));
         initMain();
     }
@@ -50,23 +50,23 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
     }
 
     private void addComponents() {
-        add(new H2(title), genericEntityGridContainer, genericEntityFormContainer);
+        add(new H2(title), genericGridContainer, genericEntityFormContainer);
     }
 
     private void bindComponents() {
-        genericEntityGridContainer.addPageChangeListener(_ -> updateList());
+        genericGridContainer.addPageChangeListener(_ -> updateList());
         genericEntityFormContainer.setOnSaveCallback(this::updateList);
-        genericEntityGridContainer.addRefreshGridEntitiesListener(_ -> updateList());
+        genericGridContainer.addRefreshListener(_ -> updateList());
 
-        genericEntityGridContainer.addAddEntityListener(_ -> addEntity());
-        genericEntityGridContainer.addEditEntityListener(e -> editEntity(e.getEntity()));
-        genericEntityGridContainer.addDeleteEntitiesListener(e -> deleteItems(e.getEntities()));
+        genericGridContainer.addAddEntityListener(_ -> addEntity());
+        genericGridContainer.addEditEntityListener(e -> editEntity(e.getEntity()));
+        genericGridContainer.addDeleteEntitiesListener(e -> deleteItems(e.getEntities()));
     }
 
     private void updateList() {
-        Page<T> page = genericCrudService.findAll(PageRequest.of(genericEntityGridContainer.getCurrentPage(), genericEntityGridContainer.getPageSize()),
-                VaadinSpringBridge.buildSpecification(entityClass, genericEntityGridContainer.getFilterValues(), genericEntityGridContainer.getGridState().getCurrentSortOrders()));
-        genericEntityGridContainer.setGridItems(page);
+        Page<T> page = genericCrudService.findAll(PageRequest.of(genericGridContainer.getCurrentPage(), genericGridContainer.getPageSize()),
+                VaadinSpringBridge.buildSpecification(entityClass, genericGridContainer.getFilterValues(), genericGridContainer.getGridState().getCurrentSortOrders()));
+        genericGridContainer.setGridItems(page);
     }
 
     private void addEntity() {
