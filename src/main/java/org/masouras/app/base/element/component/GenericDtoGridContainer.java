@@ -7,12 +7,14 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.masouras.app.base.element.component.GenericGridEvents.RefreshGridDtoEvent;
@@ -68,15 +70,17 @@ public final class GenericDtoGridContainer<T> extends VerticalLayout {
         configureGridControl();
         addGridColumns();
         addGridFilterRow();
+
+        addGridLastColumn();
+
         addGridClearAllFiltersButton();
     }
 
     private void configureGridControl() {
         gridState.getGrid().setSizeFull();
         gridState.getGrid().setEmptyStateText("No items found");
-        gridState.getGrid().setSelectionMode(Grid.SelectionMode.NONE);
+        gridState.getGrid().setSelectionMode(Grid.SelectionMode.MULTI);
         gridState.getGrid().setMultiSort(true);
-
         gridState.getGrid().addSortListener(e -> {
             gridState.setCurrentSortOrders(e.getSortOrder());
             fireEvent(new RefreshGridDtoEvent<>(this));
@@ -98,14 +102,12 @@ public final class GenericDtoGridContainer<T> extends VerticalLayout {
     private void addFilterForColumn(Grid.Column<T> col, String property) {
         Field field = VaadinGridUtils.resolveField(dtoClass, property);
         if (field == null) return;
-
         gridState.getColumnFilters().put(col, VaadinGridUtils.createFilterComponent(field));
         gridState.getColumnProperties().put(col, property);
     }
 
     private void addGridFilterRow() {
         gridState.setFilterRow(gridState.getGrid().appendHeaderRow());
-
         gridState.getColumnProperties().forEach((column, _) -> {
             Component filter = gridState.getColumnFilters().get(column);
             if (filter != null) {
@@ -136,5 +138,15 @@ public final class GenericDtoGridContainer<T> extends VerticalLayout {
         List<GridSortOrder<T>> sortOrders = gridState.getGrid().getSortOrder();
         fireEvent(new RefreshGridDtoEvent<>(this));
         gridState.getGrid().sort(sortOrders);
+    }
+
+    private void addGridLastColumn() {
+        gridState.getGrid()
+                .addComponentColumn(item -> null)
+                .setHeader(VaadinGridUtils.createButton("Apply Filters/Reload", new Icon(VaadinIcon.REFRESH), "Reload Data",
+                        _ -> fireEvent(new GenericGridEvents.RefreshGridDtoEvent<>(this)), ButtonVariant.LUMO_TERTIARY_INLINE))
+                .setAutoWidth(true)
+                .setTextAlign(ColumnTextAlign.END)
+                .setFlexGrow(0);
     }
 }

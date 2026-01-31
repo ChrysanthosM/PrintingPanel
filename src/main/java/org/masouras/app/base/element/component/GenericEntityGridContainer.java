@@ -85,7 +85,7 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         addGridColumns();
         addGridFilterRow();
 
-        addGridEditDeleteColumn();
+        addGridLastColumn();
 
         addGridAddEntityColumn();
         addGridClearAllFiltersButton();
@@ -93,7 +93,6 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
     private void configureGridControl() {
         gridState.getGrid().setSizeFull();
         gridState.getGrid().setEmptyStateText("No items found");
-//        gridState.getGrid().addThemeVariants(GridVariant.LUMO_NO_BORDER);
         gridState.getGrid().setSelectionMode(Grid.SelectionMode.MULTI);
         gridState.getGrid().setMultiSort(true);
         gridState.getGrid().addSortListener(e -> {
@@ -162,15 +161,15 @@ public final class GenericEntityGridContainer<T> extends VerticalLayout {
         VaadinGridUtils.reorderColumnsSetFirst(gridState.getGrid(), addCol);
     }
 
-    private void addGridEditDeleteColumn() {
-        Grid.Column<T> editDeleteCol = gridState.getGrid()
+    private void addGridLastColumn() {
+        Grid.Column<T> lastCol = gridState.getGrid()
                 .addColumn(new ComponentRenderer<>(this::getEditDeleteRowButtons))
                 .setHeader(VaadinGridUtils.createButton("Apply Filters/Reload", new Icon(VaadinIcon.REFRESH), "Reload Data",
                         _ -> fireEvent(new RefreshGridEntitiesEvent<>(this)), ButtonVariant.LUMO_TERTIARY_INLINE))
                 .setAutoWidth(true)
                 .setTextAlign(ColumnTextAlign.END);
 
-        gridState.getFilterRow().getCell(editDeleteCol).setComponent(
+        gridState.getFilterRow().getCell(lastCol).setComponent(
                 VaadinGridUtils.createButton("Delete Selected", new Icon(VaadinIcon.TRASH), "Delete Selected Rows",
                         _ -> GenericEntityGridDialogs.showBulkDeleteDialog(gridState.getGrid().getSelectedItems(), entities
                                 -> fireEvent(new DeleteEntitiesEvent<>(this, entities))), ButtonVariant.LUMO_WARNING));
