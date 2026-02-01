@@ -18,16 +18,16 @@ import java.util.List;
 @UIScope
 @Component
 public class PrintLettersGUI extends GenericDtoView<ListToPrintDTO> {
-    private final PrintingDataService listToPrintService;
+    private final PrintingDataService printingDataService;
 
     @Autowired
-    public PrintLettersGUI(PrintingDataService listToPrintService) {
+    public PrintLettersGUI(PrintingDataService printingDataService) {
         super("Print Letters", ListToPrintDTO.class);
-        this.listToPrintService = listToPrintService;
+        this.printingDataService = printingDataService;
     }
 
     @Override
     protected List<ListToPrintDTO> loadAllItems() {
-        return listToPrintService.getListToPrintDTOs();
+        return printingDataService.getListToPrintDTOs();
     }
 }
