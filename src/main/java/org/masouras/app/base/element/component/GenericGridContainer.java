@@ -20,6 +20,7 @@ import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.masouras.app.base.element.util.VaadinGridUtils;
+import org.masouras.app.setup.ui.business.gui.SelectedItemsActionsPanel;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Page;
 
@@ -30,14 +31,17 @@ import java.util.stream.Collectors;
 public final class GenericGridContainer<T> extends VerticalLayout {
     private final Class<T> type;
     private final PaginationBar paginationBar;
-    @Getter
-    private final GenericGridState<T> gridState;
+    @Getter private final GenericGridState<T> gridState;
 
     public GenericGridContainer(Class<T> type, GenericGridState.GridMode gridMode, int pageSize) {
         this.type = type;
         this.gridState = new GenericGridState<>(gridMode);
         this.paginationBar = (gridState.getGridMode() == GenericGridState.GridMode.ENTITY_MODE) ? new PaginationBar(pageSize) : null;
         init();
+    }
+
+    public void addSelectedItemsActionsPanel(SelectedItemsActionsPanel<T> selectedItemsActionsPanel) {
+        if (selectedItemsActionsPanel != null) addComponentAtIndex(0, selectedItemsActionsPanel);
     }
 
     // ---------------------------
@@ -150,7 +154,6 @@ public final class GenericGridContainer<T> extends VerticalLayout {
     // ---------------------------
     // COLUMN GENERATION
     // ---------------------------
-
     private void addGridColumns() {
         addEmbeddedIdColumns();
         addAttributeColumns();
@@ -237,7 +240,6 @@ public final class GenericGridContainer<T> extends VerticalLayout {
                                 entities -> fireEvent(new GenericGridEvents.DeleteEntitiesEvent<>(this, entities))
                         ), ButtonVariant.LUMO_WARNING));
     }
-
     private void addGridLastColumnDTO() {
         gridState.getGrid()
                 .addComponentColumn(_ -> null)

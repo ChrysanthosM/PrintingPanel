@@ -77,12 +77,12 @@ public class VaadinSpringBridge {
                     Class<?> type = resolveFieldType(entityClass, property);
                     if (!type.isEnum()) return gridOrder.getDirection() == SortDirection.ASCENDING ? criteriaBuilder.asc(path) : criteriaBuilder.desc(path);
 
-                    Expression<String> sortExpr = getCaseExpresion(criteriaBuilder, type, path).otherwise(StringUtils.EMPTY);
+                    Expression<String> sortExpr = getCaseExpression(criteriaBuilder, type, path).otherwise(StringUtils.EMPTY);
                     return gridOrder.getDirection() == SortDirection.ASCENDING ? criteriaBuilder.asc(sortExpr) : criteriaBuilder.desc(sortExpr);
                 })
                 .toList();
     }
-    private static CriteriaBuilder.Case<String> getCaseExpresion(CriteriaBuilder criteriaBuilder, Class<?> type, Path<?> path) {
+    private static CriteriaBuilder.Case<String> getCaseExpression(CriteriaBuilder criteriaBuilder, Class<?> type, Path<?> path) {
         CriteriaBuilder.Case<String> caseExpr = criteriaBuilder.selectCase();
         caseExpr = Arrays.stream(type.getEnumConstants())
                 .map(constant -> (Enum<?>) constant)

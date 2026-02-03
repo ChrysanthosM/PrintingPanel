@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RequiredArgsConstructor
-public abstract class GenericDtoView<T> extends VerticalLayout {
+public abstract class GenericDtoView<T> extends VerticalLayout implements HasSelectedItemsActionsPanel<T> {
     private final String title;
     private final Class<T> dtoClass;
 
@@ -22,6 +22,7 @@ public abstract class GenericDtoView<T> extends VerticalLayout {
     @PostConstruct
     private void init() {
         genericGridContainer = genericContainerFactory.createDtoGrid(dtoClass);
+        genericGridContainer.addSelectedItemsActionsPanel(createActionsPanel(genericGridContainer));
         initMain();
     }
 

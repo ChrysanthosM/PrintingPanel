@@ -4,7 +4,9 @@ import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.masouras.app.base.element.component.GenericGridContainer;
 import org.masouras.app.base.element.control.GenericDtoView;
+import org.masouras.app.setup.ui.business.service.PrintLettersService;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingDataService;
 import org.masouras.model.mssql.schema.jpa.control.entity.adapter.domain.ListToPrintDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +21,18 @@ import java.util.List;
 @Component
 public class PrintLettersGUI extends GenericDtoView<ListToPrintDTO> {
     private final PrintingDataService printingDataService;
+    private final PrintLettersService printLettersService;
 
     @Autowired
-    public PrintLettersGUI(PrintingDataService printingDataService) {
+    public PrintLettersGUI(PrintingDataService printingDataService, PrintLettersService printLettersService) {
         super("Print Letters", ListToPrintDTO.class);
         this.printingDataService = printingDataService;
+        this.printLettersService = printLettersService;
+    }
+
+    @Override
+    public SelectedItemsActionsPanel<ListToPrintDTO> createActionsPanel(GenericGridContainer<ListToPrintDTO> genericGridContainer) {
+        return printLettersService.createPanel(() -> genericGridContainer.getGridState().getGrid().getSelectedItems());
     }
 
     @Override
