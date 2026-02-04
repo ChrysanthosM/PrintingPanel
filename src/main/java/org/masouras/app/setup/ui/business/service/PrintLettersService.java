@@ -23,8 +23,8 @@ public class PrintLettersService {
                 List.of(
                         VaadinGridUtils.createButton("Print Selected", new Icon(VaadinIcon.PRINT), "Print Selected",
                                 _ -> printLetters(selectedItemsSupplier.get()), ButtonVariant.LUMO_TERTIARY),
-                        VaadinGridUtils.createButton("Export CSV", new Icon(VaadinIcon.DOWNLOAD), "Export CSV",
-                                _ -> exportToCsv(selectedItemsSupplier.get()), ButtonVariant.LUMO_TERTIARY)
+                        VaadinGridUtils.createButton("Archive Selected", new Icon(VaadinIcon.DOWNLOAD), "Archive Selected",
+                                _ -> archiveLetters(selectedItemsSupplier.get()), ButtonVariant.LUMO_TERTIARY)
                 )
         );
 
@@ -37,8 +37,8 @@ public class PrintLettersService {
         if (CollectionUtils.isEmpty(selected)) return;
     }
 
-    public void exportToCsv(Set<ListToPrintDTO> selected) {
-        if (log.isDebugEnabled()) log.info("Starting export to CSV {} letters", selected.size());
+    public void archiveLetters(Set<ListToPrintDTO> selected) {
+        if (log.isDebugEnabled()) log.info("Starting to archive {} letters", selected.size());
         if (CollectionUtils.isEmpty(selected)) return;
     }
 }
