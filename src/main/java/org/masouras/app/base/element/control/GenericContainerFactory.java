@@ -1,6 +1,8 @@
 package org.masouras.app.base.element.control;
 
-import org.masouras.app.base.element.component.*;
+import org.masouras.app.base.element.component.GenericEntityFormContainer;
+import org.masouras.app.base.element.component.GenericGridContainer;
+import org.masouras.app.base.element.component.GenericGridState;
 import org.springframework.stereotype.Component;
 
 @Component
