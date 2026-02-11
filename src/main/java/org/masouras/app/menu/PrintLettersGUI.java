@@ -1,4 +1,4 @@
-package org.masouras.app.setup.ui.business.gui;
+package org.masouras.app.menu;
 
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -6,7 +6,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.masouras.app.base.element.component.GenericGridContainer;
 import org.masouras.app.base.element.control.GenericDtoView;
-import org.masouras.app.setup.ui.business.service.PrintLettersService;
+import org.masouras.app.base.element.control.SelectedItemsActionsPanel;
+import org.masouras.app.business.printing.PrintLettersService;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingDataService;
 import org.masouras.model.mssql.schema.jpa.control.entity.adapter.domain.ListToPrintDTO;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package org.masouras.app.setup.ui.business.service;
+package org.masouras.app.business.printing;
 
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.Icon;
@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.masouras.app.base.element.util.VaadinGridUtils;
-import org.masouras.app.setup.ui.business.gui.SelectedItemsActionsPanel;
+import org.masouras.app.base.element.control.SelectedItemsActionsPanel;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingDataService;
 import org.masouras.model.mssql.schema.jpa.control.entity.adapter.domain.ListToPrintDTO;
 import org.springframework.stereotype.Service;
