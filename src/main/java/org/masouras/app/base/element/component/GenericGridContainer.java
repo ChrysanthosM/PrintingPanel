@@ -121,9 +121,13 @@ public final class GenericGridContainer<T> extends VerticalLayout {
         configureGrid();
         add(gridState.getGrid());
 
+        setStyle();
+    }
+
+    private void setStyle() {
+        setWidthFull();
         setPadding(false);
         setSpacing(false);
-        setWidthFull();
     }
 
     private void configureGrid() {

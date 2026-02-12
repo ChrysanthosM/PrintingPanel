@@ -32,6 +32,8 @@ public final class PaginationBar extends HorizontalLayout {
         setWidthFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
+        setPadding(true);
+        setSpacing(true);
 
         add(firstBtn, prevBtn, paginationInfo, nextBtn, lastBtn);
     }

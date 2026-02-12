@@ -27,14 +27,18 @@ public abstract class GenericDtoView<T> extends VerticalLayout implements HasSel
     }
 
     private void initMain() {
-        setSizeFull();
-        setPadding(false);
-        setSpacing(false);
+        setStyle();
 
         addComponents();
         bindComponents();
 
         updateList();
+    }
+
+    private void setStyle() {
+        setSizeFull();
+        setPadding(true);
+        setSpacing(true);
     }
 
     private void addComponents() {

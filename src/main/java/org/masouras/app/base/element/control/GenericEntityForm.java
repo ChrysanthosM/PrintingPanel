@@ -77,8 +77,8 @@ public abstract non-sealed class GenericEntityForm<T, ID> extends FormLayout imp
 
     private Component buildButtonBar() {
         return new HorizontalLayout(
-                new Button(new Icon(VaadinIcon.DISC), _ -> saveEntity()),
-                new Button("Cancel", _ -> setEntity(null))
+                new Button(new Icon(VaadinIcon.CHECK), _ -> saveEntity()),
+                new Button(new Icon(VaadinIcon.CLOSE_BIG), _ -> setEntity(null))
         );
     }
 

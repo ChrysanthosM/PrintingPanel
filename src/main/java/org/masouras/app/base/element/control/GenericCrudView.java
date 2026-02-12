@@ -37,16 +37,19 @@ public abstract class GenericCrudView<T, ID> extends VerticalLayout {
         genericEntityFormContainer = genericContainerFactory.createGenericEntityFormContainer(genericEntityFormFactory.getGenericEntityForm(entityClass, genericCrudService));
         initMain();
     }
-
     private void initMain() {
-        setSizeFull();
-        setPadding(false);
-        setSpacing(false);
+        setStyle();
 
         addComponents();
         bindComponents();
 
         updateList();
+    }
+
+    private void setStyle() {
+        setSizeFull();
+        setPadding(true);
+        setSpacing(true);
     }
 
     private void addComponents() {
