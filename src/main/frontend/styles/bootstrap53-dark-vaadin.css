@@ -341,11 +341,11 @@ vaadin-dialog-overlay::part(content) {
 vaadin-dialog-overlay::part(overlay) {
   background-color: rgba(0, 0, 0, 0.6);
 }
-
 /* ==========================================
    Notification
    ========================================== */
-vaadin-notification-card {
+/* Base notification card */
+vaadin-notification-card::part(content) {
   background-color: var(--bs-surface-alt);
   color: var(--bs-body-color);
   border: 1px solid var(--bs-border-color);
@@ -353,29 +353,30 @@ vaadin-notification-card {
 }
 
 /* Variants via class names */
-vaadin-notification-card.success {
+vaadin-notification-card.success::part(content) {
   background-color: rgba(25, 135, 84, 0.15);
   border-color: var(--bs-success);
-  color: #75b798;
+  color: var(--bs-body-color); /* keep text bright on dark bg */
 }
 
-vaadin-notification-card.error {
+vaadin-notification-card.error::part(content) {
   background-color: rgba(220, 53, 69, 0.15);
   border-color: var(--bs-danger);
-  color: #ea868f;
+  color: var(--bs-body-color);
 }
 
-vaadin-notification-card.warning {
+vaadin-notification-card.warning::part(content) {
   background-color: rgba(255, 193, 7, 0.15);
   border-color: var(--bs-warning);
-  color: #ffda6a;
+  color: var(--bs-body-color);
 }
 
-vaadin-notification-card.info {
+vaadin-notification-card.info::part(content) {
   background-color: rgba(13, 202, 240, 0.15);
   border-color: var(--bs-info);
-  color: #6edff6;
+  color: var(--bs-body-color);
 }
+
 
 /* ==========================================
    Grid - FIXED
