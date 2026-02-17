@@ -42,7 +42,7 @@ public class PrintLettersService {
                 List.of(
                         VaadinGridUtils.createButton("Print Selected", new Icon(VaadinIcon.PRINT), "Print Selected",
                                 _ -> printLetters(selectedItemsSupplier.get(), printerCombo.getValue()), ButtonVariant.LUMO_TERTIARY),
-                        VaadinGridUtils.createButton("Archive Selected", new Icon(VaadinIcon.DOWNLOAD), "Archive Selected",
+                        VaadinGridUtils.createButton("Archive Selected", new Icon(VaadinIcon.FOLDER), "Archive Selected",
                                 _ -> archiveLetters(selectedItemsSupplier.get()), ButtonVariant.LUMO_TERTIARY)
                 )
         );
