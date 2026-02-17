@@ -58,7 +58,6 @@ public class PrintLettersService {
         listContentIDs.forEach(id -> printingFilesService.findById(id).ifPresent(printingFilesEntity -> {
             if (log.isInfoEnabled()) log.info("Printing letter with Content ID: {}", id);
             printFileService.printPdf(printingFilesEntity.getContentBinary(), selectedPrinter);
-            printFileService.printToMicrosoftPdf(printingFilesEntity.getContentBinary(), "D:\\MyDocuments\\Temp\\PrintingTest\\Letter_" + id + ".pdf");
         }));
     }
 
