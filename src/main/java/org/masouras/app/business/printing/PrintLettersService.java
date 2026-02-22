@@ -56,12 +56,12 @@ public class PrintLettersService {
     public void printLetters(Set<LetterToPrintDTO> letterToPrintDTOS, @Nullable String selectedPrinter) {
         if (StringUtils.isBlank(selectedPrinter)) {
             Notification.show("Please select a printer before printing.", 3000, Notification.Position.MIDDLE)
-                    .addThemeVariants(NotificationVariant.LUMO_ERROR);;
+                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
             return;
         }
         if (CollectionUtils.isEmpty(letterToPrintDTOS)) {
             Notification.show("Noting is selected for printing.", 3000, Notification.Position.MIDDLE)
-                    .addThemeVariants(NotificationVariant.LUMO_ERROR);;
+                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
             return;
         }
 
