@@ -19,7 +19,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.masouras.app.base.element.util.VaadinGridUtils;
+import org.masouras.app.base.element.util.VaadinUtils;
 import org.masouras.app.base.element.control.SelectedItemsActionsPanel;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Page;
@@ -89,7 +89,7 @@ public final class GenericGridContainer<T> extends VerticalLayout {
         paginationBar.updatePaginationBar((int) page.getTotalElements(), page.getTotalPages());
     }
     private void setDtoItems(List<T> items) {
-        gridState.getGrid().setItems(VaadinGridUtils.applyFilters(items, getFilterValues()));
+        gridState.getGrid().setItems(VaadinUtils.applyFilters(items, getFilterValues()));
         if (CollectionUtils.isNotEmpty(gridState.getCurrentSortOrders())) gridState.getGrid().sort(gridState.getCurrentSortOrders());
         gridState.setAllItems(items);
     }
@@ -170,7 +170,7 @@ public final class GenericGridContainer<T> extends VerticalLayout {
                     Arrays.stream(embeddedField.getType().getDeclaredFields())
                             .filter(field -> field.isAnnotationPresent(FormField.class))
                             .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
-                            .forEach(field -> VaadinGridUtils.createGridColumn(
+                            .forEach(field -> VaadinUtils.createGridColumn(
                                     gridState.getGrid(), embeddedField, field, this::addFilterForColumn
                             ));
                 });
@@ -179,14 +179,14 @@ public final class GenericGridContainer<T> extends VerticalLayout {
         Arrays.stream(type.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(FormField.class))
                 .sorted(Comparator.comparingInt(field -> field.getAnnotation(FormField.class).order()))
-                .forEach(field -> VaadinGridUtils.createGridColumn(
+                .forEach(field -> VaadinUtils.createGridColumn(
                         gridState.getGrid(), null, field, this::addFilterForColumn
                 ));
     }
     private void addFilterForColumn(Grid.Column<T> col, String property) {
-        Field field = VaadinGridUtils.resolveField(type, property);
+        Field field = VaadinUtils.resolveField(type, property);
         if (field == null) return;
-        gridState.getColumnFilters().put(col, VaadinGridUtils.createFilterComponent(field));
+        gridState.getColumnFilters().put(col, VaadinUtils.createFilterComponent(field));
         gridState.getColumnProperties().put(col, property);
     }
 
@@ -204,7 +204,7 @@ public final class GenericGridContainer<T> extends VerticalLayout {
     // CLEAR FILTERS
     // ---------------------------
     private void addGridClearAllFiltersButton() {
-        Button clearBtn = VaadinGridUtils.createButton(null, new Icon(VaadinIcon.CLOSE_CIRCLE), "Clear all filters",
+        Button clearBtn = VaadinUtils.createButton(null, new Icon(VaadinIcon.CLOSE_CIRCLE), "Clear all filters",
                 _ -> clearAllFilters(), ButtonVariant.LUMO_TERTIARY_INLINE);
         Grid.Column<T> firstCol = gridState.getGrid().getColumns().getFirst();
         gridState.getFilterRow().getCell(firstCol).setComponent(clearBtn);
@@ -233,13 +233,13 @@ public final class GenericGridContainer<T> extends VerticalLayout {
     private void addGridLastColumnEntity() {
         Grid.Column<T> lastCol = gridState.getGrid()
                 .addColumn(new ComponentRenderer<>(this::getEditDeleteRowButtons))
-                .setHeader(VaadinGridUtils.createButton("Apply Filters/Reload", new Icon(VaadinIcon.REFRESH), "Reload Data",
+                .setHeader(VaadinUtils.createButton("Apply Filters/Reload", new Icon(VaadinIcon.REFRESH), "Reload Data",
                         _ -> fireEvent(new GenericGridEvents.RefreshGridEvent<>(this)), ButtonVariant.LUMO_TERTIARY_INLINE))
                 .setAutoWidth(true)
                 .setTextAlign(ColumnTextAlign.END);
 
         gridState.getFilterRow().getCell(lastCol).setComponent(
-                VaadinGridUtils.createButton("Delete Selected", new Icon(VaadinIcon.TRASH), "Delete Selected Rows",
+                VaadinUtils.createButton("Delete Selected", new Icon(VaadinIcon.TRASH), "Delete Selected Rows",
                         _ -> GenericGridDialogs.showBulkDeleteDialog(gridState.getGrid().getSelectedItems(),
                                 entities -> fireEvent(new GenericGridEvents.DeleteEntitiesEvent<>(this, entities))
                         ), ButtonVariant.LUMO_WARNING));
@@ -247,7 +247,7 @@ public final class GenericGridContainer<T> extends VerticalLayout {
     private void addGridLastColumnDTO() {
         gridState.getGrid()
                 .addComponentColumn(_ -> null)
-                .setHeader(VaadinGridUtils.createButton("Apply Filters/Reload", new Icon(VaadinIcon.REFRESH), "Reload Data",
+                .setHeader(VaadinUtils.createButton("Apply Filters/Reload", new Icon(VaadinIcon.REFRESH), "Reload Data",
                         _ -> fireEvent(new GenericGridEvents.RefreshGridEvent<>(this)), ButtonVariant.LUMO_TERTIARY_INLINE))
                 .setAutoWidth(true)
                 .setTextAlign(ColumnTextAlign.END)
@@ -256,9 +256,9 @@ public final class GenericGridContainer<T> extends VerticalLayout {
 
     private HorizontalLayout getEditDeleteRowButtons(T entity) {
         HorizontalLayout actions = new HorizontalLayout(
-                VaadinGridUtils.createButton(null, new Icon(VaadinIcon.EDIT), "Edit Row",
+                VaadinUtils.createButton(null, new Icon(VaadinIcon.EDIT), "Edit Row",
                         _ -> fireEvent(new GenericGridEvents.EditEntityEvent<>(this, entity))),
-                VaadinGridUtils.createButton(null, new Icon(VaadinIcon.TRASH), "Delete Row",
+                VaadinUtils.createButton(null, new Icon(VaadinIcon.TRASH), "Delete Row",
                         _ -> GenericGridDialogs.showDeleteDialog(entity, entities -> fireEvent(new GenericGridEvents.DeleteEntitiesEvent<>(this, entities)))));
         actions.setWidthFull();
         actions.setJustifyContentMode(JustifyContentMode.END);
@@ -272,10 +272,10 @@ public final class GenericGridContainer<T> extends VerticalLayout {
     private void addGridAddEntityColumn() {
         Grid.Column<T> addCol = gridState.getGrid()
                 .addColumn(_ -> StringUtils.EMPTY)
-                .setHeader(VaadinGridUtils.createButton(null, new Icon(VaadinIcon.PLUS_CIRCLE), "Add Row",
+                .setHeader(VaadinUtils.createButton(null, new Icon(VaadinIcon.PLUS_CIRCLE), "Add Row",
                         _ -> fireEvent(new GenericGridEvents.AddEntityEvent<>(this)), ButtonVariant.LUMO_TERTIARY_INLINE))
                 .setAutoWidth(true)
                 .setFlexGrow(0);
-        VaadinGridUtils.reorderColumnsSetFirst(gridState.getGrid(), addCol);
+        VaadinUtils.reorderColumnsSetFirst(gridState.getGrid(), addCol);
     }
 }

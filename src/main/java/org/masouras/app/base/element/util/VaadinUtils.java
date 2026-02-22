@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 @UtilityClass
-public class VaadinGridUtils {
+public class VaadinUtils {
 
     public static <T> void createGridColumn(Grid<T> grid, Field embeddedField, Field field, BiConsumer<Grid.Column<T>, String> filterConsumer) {
         field.setAccessible(true);
