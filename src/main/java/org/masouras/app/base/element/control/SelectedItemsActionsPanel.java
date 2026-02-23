@@ -13,11 +13,20 @@ import java.util.function.Supplier;
 public final class SelectedItemsActionsPanel<T> extends HorizontalLayout {
     private final Supplier<Set<T>> selectedItemsSupplier;
     private final List<Button> actionButtons;
+    private final List<Component> leftSideComponents;
 
     private final HorizontalLayout leftSide = new HorizontalLayout();
     private final HorizontalLayout rightSide = new HorizontalLayout();
 
     public void init() {
+        setStyle();
+
+        actionButtons.forEach(rightSide::add);
+        leftSideComponents.forEach(leftSide::add);
+
+        add(leftSide, rightSide);
+    }
+    private void setStyle() {
         setWidthFull();
         setSpacing(true);
         setPadding(true);
@@ -26,24 +35,9 @@ public final class SelectedItemsActionsPanel<T> extends HorizontalLayout {
 
         leftSide.setSpacing(true);
         leftSide.setAlignItems(Alignment.CENTER);
-
         rightSide.setSpacing(true);
         rightSide.setAlignItems(Alignment.CENTER);
-
-        // Add action buttons to the right side
-        actionButtons.forEach(rightSide::add);
-
-        // Add both sides to the main layout
-        add(leftSide, rightSide);
     }
-
-    public void addToLeft(Component... components) {
-        leftSide.add(components);
-    }
-    public void addToRight(Component... components) {
-        rightSide.add(components);
-    }
-
 
     public Set<T> getSelectedItems() {
         return selectedItemsSupplier.get();

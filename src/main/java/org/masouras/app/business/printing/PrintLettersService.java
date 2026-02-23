@@ -21,6 +21,8 @@ import org.masouras.model.mssql.schema.jpa.boundary.PrintingFilesService;
 import org.masouras.model.mssql.schema.jpa.control.entity.adapter.domain.LetterToPrintDTO;
 import org.springframework.stereotype.Service;
 
+import java.lang.management.ManagementFactory;
+import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Set;
@@ -40,9 +42,13 @@ public class PrintLettersService {
         printerCombo.setPlaceholder("Choose printer...");
         printerCombo.setWidth("auto");
 
-        TextField folderField = new TextField("Output Path", "D:\\MyDocuments\\Programming\\Files\\PMP\\Print", "Print to PDF -> Output Path");
+        Path defaultPath = Path.of(System.getProperty("user.home"));
+        if (ManagementFactory.getRuntimeMXBean().getInputArguments().toString().contains("jdwp")) {
+            defaultPath = Path.of("D:", "MyDocuments", "Programming", "Files", "PMP", "Print");
+        }
+        TextField folderField = new TextField("Output Path", defaultPath.toString(), "Print to PDF? -> Output Path");
         folderField.setReadOnly(true);
-        folderField.setWidth("auto");
+        folderField.setWidthFull();
         folderField.setTooltipText(folderField.getValue());
 
         SelectedItemsActionsPanel<LetterToPrintDTO> selectedItemsActionsPanel = new SelectedItemsActionsPanel<>(
@@ -52,16 +58,15 @@ public class PrintLettersService {
                                 _ -> printLetters(selectedItemsSupplier.get(), printerCombo.getValue(), folderField.getValue()), ButtonVariant.LUMO_TERTIARY),
                         VaadinUtils.createButton("Archive Selected", new Icon(VaadinIcon.FOLDER), "Archive Selected",
                                 _ -> archiveLetters(selectedItemsSupplier.get()), ButtonVariant.LUMO_TERTIARY)
+                ),
+                List.of(
+                        printerCombo,
+                        folderField,
+                        VaadinUtils.createButton("Browse", new Icon(VaadinIcon.FOLDER_OPEN), "Browse for output folder",
+                                _ -> new FolderBrowserDialog(folderField, folderField.getValue()).open(), ButtonVariant.LUMO_TERTIARY)
                 )
         );
         selectedItemsActionsPanel.init();
-
-        selectedItemsActionsPanel.addToLeft(
-                printerCombo,
-                folderField,
-                VaadinUtils.createButton("Browse", new Icon(VaadinIcon.FOLDER_OPEN), "Browse for output folder",
-                _ -> new FolderBrowserDialog(folderField, folderField.getValue()).open(), ButtonVariant.LUMO_TERTIARY)
-        );
 
         return selectedItemsActionsPanel;
     }

@@ -17,8 +17,8 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public class FolderBrowserDialog extends Dialog {
-    private Path currentPath;
     private final VerticalLayout folderList = new VerticalLayout();
+    private Path currentPath;
 
     public FolderBrowserDialog(TextField targetField, String initialPath) {
         this.currentPath = Path.of(initialPath);
@@ -42,11 +42,15 @@ public class FolderBrowserDialog extends Dialog {
 
         getFooter().add(
                 VaadinUtils.createButton("Cancel", new Icon(VaadinIcon.CLOSE), "Cancel",
-                        _ -> close(), ButtonVariant.LUMO_TERTIARY),
+                        _ -> {
+                            targetField.setValue(initialPath);
+                            targetField.setTooltipText(targetField.getValue());
+                            close();
+                        }, ButtonVariant.LUMO_TERTIARY),
                 VaadinUtils.createButton("Select This Folder", new Icon(VaadinIcon.CHECK), "Select This Folder",
-                         _ -> {
+                        _ -> {
                             targetField.setValue(currentPath.toString());
-                             targetField.setTooltipText(targetField.getValue());
+                            targetField.setTooltipText(targetField.getValue());
                             close();
                         }, ButtonVariant.LUMO_PRIMARY)
         );
