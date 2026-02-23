@@ -9,7 +9,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import org.masouras.app.base.element.util.VaadinUtils;
+import org.masouras.app.base.element.util.VaadinButtonFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,13 +41,13 @@ public class FolderBrowserDialog extends Dialog {
         add(pathDisplay, scroller);
 
         getFooter().add(
-                VaadinUtils.createButton("Cancel", new Icon(VaadinIcon.CLOSE), "Cancel",
+                VaadinButtonFactory.createButton("Cancel", new Icon(VaadinIcon.CLOSE), "Cancel",
                         _ -> {
                             targetField.setValue(initialPath);
                             targetField.setTooltipText(targetField.getValue());
                             close();
                         }, ButtonVariant.LUMO_TERTIARY),
-                VaadinUtils.createButton("Select This Folder", new Icon(VaadinIcon.CHECK), "Select This Folder",
+                VaadinButtonFactory.createButton("Select This Folder", new Icon(VaadinIcon.CHECK), "Select This Folder",
                         _ -> {
                             targetField.setValue(currentPath.toString());
                             targetField.setTooltipText(targetField.getValue());
@@ -66,7 +66,7 @@ public class FolderBrowserDialog extends Dialog {
         // "Go up" entry
         Path parent = currentPath.getParent();
         if (parent != null) {
-            Button upBtn = VaadinUtils.createButton("[..] Up one level", new Icon(VaadinIcon.ARROW_UP), "Go up to parent directory",
+            Button upBtn = VaadinButtonFactory.createButton("[..] Up one level", new Icon(VaadinIcon.ARROW_UP), "Go up to parent directory",
                     _ -> {
                         currentPath = parent;
                         refresh(pathDisplay);
@@ -80,7 +80,7 @@ public class FolderBrowserDialog extends Dialog {
             paths.filter(Files::isDirectory)
                     .sorted()
                     .forEach(dir -> {
-                        Button dirBtn = VaadinUtils.createButton(dir.getFileName().toString(), new Icon(VaadinIcon.FOLDER), "Open " + dir.getFileName(),
+                        Button dirBtn = VaadinButtonFactory.createButton(dir.getFileName().toString(), new Icon(VaadinIcon.FOLDER), "Open " + dir.getFileName(),
                                 _ -> {
                                     currentPath = dir;
                                     refresh(pathDisplay);

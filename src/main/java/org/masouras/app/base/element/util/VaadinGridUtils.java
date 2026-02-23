@@ -1,16 +1,10 @@
 package org.masouras.app.base.element.util;
 
 import com.vaadin.copilot.shaded.commons.lang3.StringUtils;
-import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.textfield.TextField;
-import jakarta.annotation.Nullable;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.collections4.CollectionUtils;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
@@ -18,12 +12,11 @@ import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 @UtilityClass
-public class VaadinUtils {
+public class VaadinGridUtils {
 
     public static <T> void createGridColumn(Grid<T> grid, Field embeddedField, Field field, BiConsumer<Grid.Column<T>, String> filterConsumer) {
         field.setAccessible(true);
@@ -88,13 +81,6 @@ public class VaadinUtils {
             filterComponent = filter;
         }
         return filterComponent;
-    }
-
-    public static Button createButton(@Nullable String text, Icon icon, @Nullable String tooltip, ComponentEventListener<ClickEvent<Button>> listener, ButtonVariant... variants) {
-        Button button = StringUtils.isNotBlank(text) ? new Button(text, icon, listener) : new Button(icon, listener);
-        Optional.ofNullable(variants).filter(v -> v.length > 0).ifPresent(button::addThemeVariants);
-        if (StringUtils.isNotBlank(tooltip)) button.getElement().setProperty("title", tooltip);
-        return button;
     }
 
     public static <T> void reorderColumnsSetFirst(Grid<T> grid, Grid.Column<T> setFirstColumn) {
