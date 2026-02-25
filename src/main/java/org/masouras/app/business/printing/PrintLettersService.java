@@ -1,7 +1,6 @@
 package org.masouras.app.business.printing;
 
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
+import com.google.common.base.Preconditions;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,17 +25,8 @@ public class PrintLettersService {
     private final PrintFileService printFileService;
 
     public void printLetters(Set<LetterToPrintDTO> letterToPrintDTOS, @Nullable String selectedPrinter, @Nullable String selectedOutputPath) {
-        if (StringUtils.isBlank(selectedPrinter)) {
-            Notification.show("Please select a printer before printing.", 3000, Notification.Position.MIDDLE)
-                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
-            return;
-        }
-        if (CollectionUtils.isEmpty(letterToPrintDTOS)) {
-            Notification.show("Noting is selected for printing.", 3000, Notification.Position.MIDDLE)
-                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
-            return;
-        }
-
+        Preconditions.checkArgument(StringUtils.isNotBlank(selectedPrinter), "Selected printer cannot be empty");
+        Preconditions.checkArgument(CollectionUtils.isNotEmpty(letterToPrintDTOS), "No letters selected for printing");
         printLettersMain(letterToPrintDTOS, selectedPrinter, selectedOutputPath);
     }
     private void printLettersMain(Set<LetterToPrintDTO> letterToPrintDTOS, String selectedPrinter, String selectedOutputPath) {

@@ -33,7 +33,7 @@ public class PrintLettersGUI extends GenericDtoView<LetterToPrintDTO> {
 
     @Override
     public SelectedItemsActionsPanel<LetterToPrintDTO> createActionsPanel(GenericGridContainer<LetterToPrintDTO> genericGridContainer) {
-        return printLettersPanelFactory.createPanel(() -> genericGridContainer.getGridState().getGrid().getSelectedItems());
+        return printLettersPanelFactory.createPanel(genericGridContainer);
     }
 
     @Override

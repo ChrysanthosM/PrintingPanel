@@ -71,6 +71,12 @@ public final class GenericGridContainer<T> extends VerticalLayout {
         return (gridState.getGridMode() == GenericGridState.GridMode.ENTITY_MODE) ? paginationBar.getPageSize() : Integer.MAX_VALUE;
     }
 
+    public void refreshGrid() {
+        List<GridSortOrder<T>> sortOrders = gridState.getGrid().getSortOrder();
+        fireEvent(new GenericGridEvents.RefreshGridEvent<>(this));
+        gridState.getGrid().sort(sortOrders);
+    }
+
     // ---------------------------
     // SET GRID ITEMS (ENTITY + DTO)
     // ---------------------------
@@ -216,10 +222,7 @@ public final class GenericGridContainer<T> extends VerticalLayout {
             if (component instanceof TextField tf) tf.clear();
             if (component instanceof ComboBox<?> cb) cb.clear();
         });
-
-        List<GridSortOrder<T>> sortOrders = gridState.getGrid().getSortOrder();
-        fireEvent(new GenericGridEvents.RefreshGridEvent<>(this));
-        gridState.getGrid().sort(sortOrders);
+        refreshGrid();
     }
 
     // ---------------------------
@@ -235,7 +238,7 @@ public final class GenericGridContainer<T> extends VerticalLayout {
         Grid.Column<T> lastCol = gridState.getGrid()
                 .addColumn(new ComponentRenderer<>(this::getEditDeleteRowButtons))
                 .setHeader(VaadinButtonFactory.createButton("Apply Filters/Reload", new Icon(VaadinIcon.REFRESH), "Reload Data",
-                        _ -> fireEvent(new GenericGridEvents.RefreshGridEvent<>(this)), ButtonVariant.LUMO_TERTIARY_INLINE))
+                        _ -> refreshGrid(), ButtonVariant.LUMO_TERTIARY_INLINE))
                 .setAutoWidth(true)
                 .setTextAlign(ColumnTextAlign.END);
 
@@ -249,7 +252,7 @@ public final class GenericGridContainer<T> extends VerticalLayout {
         gridState.getGrid()
                 .addComponentColumn(_ -> null)
                 .setHeader(VaadinButtonFactory.createButton("Apply Filters/Reload", new Icon(VaadinIcon.REFRESH), "Reload Data",
-                        _ -> fireEvent(new GenericGridEvents.RefreshGridEvent<>(this)), ButtonVariant.LUMO_TERTIARY_INLINE))
+                        _ -> refreshGrid(), ButtonVariant.LUMO_TERTIARY_INLINE))
                 .setAutoWidth(true)
                 .setTextAlign(ColumnTextAlign.END)
                 .setFlexGrow(0);
