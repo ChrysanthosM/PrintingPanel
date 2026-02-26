@@ -23,12 +23,12 @@ public class AsyncUiExecutor {
     }
     private static void asyncCompleted(GenericGridContainer<?> componentToDisable, Consumer<Throwable> errorHandler, Runnable successHandler, Throwable err) {
         try {
-            runSuccessOrError(errorHandler, successHandler, err);
+            runSuccessOrError(successHandler, errorHandler, err);
         } finally {
             componentToDisable.setEnabled(true);
         }
     }
-    private static void runSuccessOrError(Consumer<Throwable> errorHandler, Runnable successHandler, Throwable err) {
+    private static void runSuccessOrError(Runnable successHandler, Consumer<Throwable> errorHandler, Throwable err) {
         if (err != null) {
             errorHandler.accept(err.getCause() != null ? err.getCause() : err);
         } else {

@@ -91,6 +91,7 @@ public class PrintLettersPanelFactory {
     private void showErrorNotification(@NonNull String message, Throwable err) {
         Notification notification = new Notification();
         notification.setPosition(Notification.Position.MIDDLE);
+        notification.setDuration(0);
 
         HorizontalLayout layout = new HorizontalLayout(
                 new Text(message + StringUtils.SPACE + err.getMessage()),
@@ -99,7 +100,6 @@ public class PrintLettersPanelFactory {
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         notification.add(layout);
 
-        notification.setDuration(0);
         notification.open();
     }
 }
