@@ -85,11 +85,11 @@ public class PrintLettersPanelFactory {
 
     private void printSelectedLetters(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState,
                                       ComboBox<String> printerCombo, TextField folderField) {
-        selectedItemsProgressState.progressStart();
+        selectedItemsProgressState.progressStart(true);
         AsyncExecutorProvider.runAsync(
                 () -> printLettersService.printLetters(selectedItemsProgressState, printerCombo.getValue(), folderField.getValue()),
-                selectedItemsProgressState::progressStop,
-                selectedItemsProgressState::progressStop
+                selectedItemsProgressState::progressEnded,
+                selectedItemsProgressState::progressEnded
         );
     }
 }

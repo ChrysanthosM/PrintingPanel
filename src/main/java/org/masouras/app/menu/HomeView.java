@@ -5,8 +5,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 
-@Route("")
+@Route("home")
+@RouteAlias("")
 @PageTitle("Printing Maintenance")
 @Menu(order = 0, icon = "vaadin:home", title = "Printing Maintenance")
 public class HomeView extends VerticalLayout {

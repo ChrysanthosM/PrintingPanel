@@ -37,6 +37,7 @@ public class PrintLettersService {
         letterToPrintDTOS.stream()
                 .map(letterToPrintDTO -> new AbstractMap.SimpleEntry<>(letterToPrintDTO, letterToPrintDTO.getFinalContentId()))
                 .filter(entry -> entry.getValue() != null)
+                .takeWhile(_ -> selectedItemsProgressState.progressIsNotCancelled())
                 .forEach(entry -> printingFilesService.findById(entry.getValue()).ifPresent(printingFilesEntity -> {
                     if (log.isInfoEnabled()) log.info("Printing letter with Content ID: {}", entry.getValue());
                     printFileService.printPdf(printingFilesEntity, selectedPrinter, StringUtils.trimToNull(selectedOutputPath));

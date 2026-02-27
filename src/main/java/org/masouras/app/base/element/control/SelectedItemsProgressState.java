@@ -13,6 +13,7 @@ import org.masouras.app.business.printing.SelectedItemsProgressService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RequiredArgsConstructor
 public final class SelectedItemsProgressState<T> {
@@ -20,6 +21,7 @@ public final class SelectedItemsProgressState<T> {
     @Getter private final GenericGridContainer<T> genericGridContainer;
 
     @Getter private final ProgressPanel progressPanel = new ProgressPanel();
+    private final AtomicBoolean progressCancelled = new AtomicBoolean(false);
 
     @Getter private String printingJobID;
     private UI currentUI;
@@ -27,30 +29,39 @@ public final class SelectedItemsProgressState<T> {
 
     @Getter private List<T> selectedItemsCached;
 
-    public void progressStart() {
-        genericGridContainer.setEnabled(false);
+    public void progressStart(boolean cancelable) {
+        if (!cancelable) genericGridContainer.setEnabled(false);
+        progressCancelled.set(false);
 
         printingJobID = selectedItemsProgressService.startJob();
         selectedItemsCached = new UnmodifiableList<>(new ArrayList<>(genericGridContainer.getGridState().getGrid().getSelectedItems()));
         progressPanel.start(selectedItemsCached.size());
+        if (cancelable) progressPanel.setCancelCallback(this::progressMustCancel);
 
         currentUI = UI.getCurrent();
         currentUI.setPollInterval(500);
         pollRegistration = currentUI.addPollListener(_ -> progressPanel.update(selectedItemsProgressService.getCurrent(printingJobID)));
     }
 
+    public boolean progressIsNotCancelled() {
+        return !progressCancelled.get();
+    }
+    private void progressMustCancel() {
+        progressCancelled.set(true);
+    }
+
     public void progressIncrement() {
         selectedItemsProgressService.increment(printingJobID);
     }
 
-    public void progressStop() { progressStop(null); }
-    public void progressStop(@Nullable Throwable throwable) {
-        currentUI.access(() -> progressStopMain(throwable));
+    public void progressEnded() { progressEnded(null); }
+    public void progressEnded(@Nullable Throwable throwable) {
+        currentUI.access(() -> progressEndedMain(throwable));
     }
-    private void progressStopMain(Throwable throwable) {
+    private void progressEndedMain(Throwable throwable) {
         currentUI.setPollInterval(-1);
         pollRegistration.remove();
-        progressPanel.finish();
+        progressPanel.finish(throwable == null);
         selectedItemsProgressService.endJob(printingJobID);
 
         if (throwable == null) genericGridContainer.refreshGrid();
