@@ -5,7 +5,6 @@ import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.apache.commons.collections4.list.UnmodifiableList;
 import org.masouras.app.base.element.component.GenericGridContainer;
 import org.masouras.app.base.element.util.ProgressPanel;
@@ -22,9 +21,9 @@ public final class SelectedItemsProgressState<T> {
 
     @Getter private final ProgressPanel progressPanel = new ProgressPanel();
 
-    @Getter @Setter private String printingJobID;
-    @Getter @Setter private UI ui;
-    @Getter @Setter private Registration pollRegistration;
+    @Getter private String printingJobID;
+    private UI currentUI;
+    private Registration pollRegistration;
 
     @Getter private List<T> selectedItemsCached;
 
@@ -35,9 +34,9 @@ public final class SelectedItemsProgressState<T> {
         selectedItemsCached = new UnmodifiableList<>(new ArrayList<>(genericGridContainer.getGridState().getGrid().getSelectedItems()));
         progressPanel.start(selectedItemsCached.size());
 
-        ui = UI.getCurrent();
-        ui.setPollInterval(500);
-        pollRegistration = ui.addPollListener(_ -> progressPanel.update(selectedItemsProgressService.getCurrent(printingJobID)));
+        currentUI = UI.getCurrent();
+        currentUI.setPollInterval(500);
+        pollRegistration = currentUI.addPollListener(_ -> progressPanel.update(selectedItemsProgressService.getCurrent(printingJobID)));
     }
 
     public void progressIncrement() {
@@ -46,15 +45,15 @@ public final class SelectedItemsProgressState<T> {
 
     public void progressStop() { progressStop(null); }
     public void progressStop(@Nullable Throwable throwable) {
-        ui.access(() -> progressStopMain(throwable));
+        currentUI.access(() -> progressStopMain(throwable));
     }
     private void progressStopMain(Throwable throwable) {
-        ui.setPollInterval(-1);
+        currentUI.setPollInterval(-1);
         pollRegistration.remove();
         progressPanel.finish();
         selectedItemsProgressService.endJob(printingJobID);
 
-        genericGridContainer.refreshGrid();
+        if (throwable == null) genericGridContainer.refreshGrid();
         genericGridContainer.setEnabled(true);
 
         if (throwable != null) {

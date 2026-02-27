@@ -8,6 +8,7 @@ public final class ProgressPanel extends VerticalLayout {
     private final ProgressBar progressBar = new ProgressBar(0, 1, 0);
     private final Span status = new Span("Waiting...");
     private int total = 0;
+    private int current = 0;
 
     public ProgressPanel() {
         setPadding(true);
@@ -24,14 +25,15 @@ public final class ProgressPanel extends VerticalLayout {
     }
 
     public void update(int current) {
+        this.current = current;
         if (total > 0) {
-            progressBar.setValue((double) current / total);
-            status.setText(current + " / " + total);
+            progressBar.setValue((double) this.current / total);
+            status.setText(this.current + " / " + total);
         }
     }
 
     public void finish() {
         progressBar.setValue(1);
-        status.setText("Completed " + total + " items");
+        status.setText("Completed " + this.current + " items");
     }
 }
