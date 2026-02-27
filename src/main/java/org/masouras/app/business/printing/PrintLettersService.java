@@ -23,13 +23,15 @@ public class PrintLettersService {
     private final PrintingDataService printingDataService;
     private final PrintingFilesService printingFilesService;
     private final PrintFileService printFileService;
+    private final PrintLettersProgressService printLettersProgressService;
 
-    public void printLetters(Set<LetterToPrintDTO> letterToPrintDTOS, @Nullable String selectedPrinter, @Nullable String selectedOutputPath) {
+    public void printLetters(String printingJobID, Set<LetterToPrintDTO> letterToPrintDTOS, String selectedPrinter, @Nullable String selectedOutputPath) {
+        Preconditions.checkArgument(StringUtils.isNotBlank(printingJobID));
         Preconditions.checkArgument(StringUtils.isNotBlank(selectedPrinter), "Selected printer cannot be empty");
         Preconditions.checkArgument(CollectionUtils.isNotEmpty(letterToPrintDTOS), "No letters selected for printing");
-        printLettersMain(letterToPrintDTOS, selectedPrinter, selectedOutputPath);
+        printLettersMain(printingJobID, letterToPrintDTOS, selectedPrinter, selectedOutputPath);
     }
-    private void printLettersMain(Set<LetterToPrintDTO> letterToPrintDTOS, String selectedPrinter, String selectedOutputPath) {
+    private void printLettersMain(String printingJobID, Set<LetterToPrintDTO> letterToPrintDTOS, String selectedPrinter, String selectedOutputPath) {
         if (log.isInfoEnabled()) log.info("Starting to print {} letters", letterToPrintDTOS.size());
 
         letterToPrintDTOS.stream()
@@ -39,7 +41,9 @@ public class PrintLettersService {
                     if (log.isInfoEnabled()) log.info("Printing letter with Content ID: {}", entry.getValue());
                     printFileService.printPdf(printingFilesEntity, selectedPrinter, StringUtils.trimToNull(selectedOutputPath));
                     archiveLetters(Set.of(entry.getKey()));
+                    printLettersProgressService.increment(printingJobID);
                 }));
+        printLettersProgressService.endJob(printingJobID);
     }
 
     public void archiveLetters(Set<LetterToPrintDTO> letterToPrintDTOS) {
