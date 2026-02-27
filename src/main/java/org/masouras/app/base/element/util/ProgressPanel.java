@@ -32,6 +32,6 @@ public final class ProgressPanel extends VerticalLayout {
 
     public void finish() {
         progressBar.setValue(1);
-        status.setText("Completed");
+        status.setText("Completed " + total + " items");
     }
 }

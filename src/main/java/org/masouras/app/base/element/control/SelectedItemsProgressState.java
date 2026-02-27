@@ -46,18 +46,19 @@ public final class SelectedItemsProgressState<T> {
 
     public void progressStop() { progressStop(null); }
     public void progressStop(@Nullable Throwable throwable) {
-        ui.access(() -> {
-            ui.setPollInterval(-1);
-            pollRegistration.remove();
-            progressPanel.finish();
-            selectedItemsProgressService.endJob(printingJobID);
+        ui.access(() -> progressStopMain(throwable));
+    }
+    private void progressStopMain(Throwable throwable) {
+        ui.setPollInterval(-1);
+        pollRegistration.remove();
+        progressPanel.finish();
+        selectedItemsProgressService.endJob(printingJobID);
 
-            genericGridContainer.refreshGrid();
-            genericGridContainer.setEnabled(true);
+        genericGridContainer.refreshGrid();
+        genericGridContainer.setEnabled(true);
 
-            if (throwable != null) {
-                VaadinNotificationFactory.showErrorNotification("An error occurred while processing selected items.", throwable);
-            }
-        });
+        if (throwable != null) {
+            VaadinNotificationFactory.showErrorNotification("An error occurred while processing selected items.", throwable);
+        }
     }
 }
