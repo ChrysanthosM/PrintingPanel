@@ -6,9 +6,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 @UtilityClass
-public class AsyncUiExecutor {
+public class AsyncExecutorProvider {
 
-    public static void runWithUiLock(Runnable backgroundTask, Consumer<Throwable> errorHandler, Runnable successHandler) {
+    public static void runAsync(Runnable backgroundTask, Consumer<Throwable> errorHandler, Runnable successHandler) {
         CompletableFuture
                 .runAsync(backgroundTask)
                 .whenComplete((_, err) -> asyncCompleted(successHandler, errorHandler, err));

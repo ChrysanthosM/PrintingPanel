@@ -12,7 +12,7 @@ import org.masouras.app.base.element.component.GenericGridContainer;
 import org.masouras.app.base.element.control.FolderBrowserDialog;
 import org.masouras.app.base.element.control.SelectedItemsActionsPanel;
 import org.masouras.app.base.element.control.SelectedItemsProgressState;
-import org.masouras.app.base.element.util.AsyncUiExecutor;
+import org.masouras.app.base.element.util.AsyncExecutorProvider;
 import org.masouras.app.base.element.util.VaadinButtonFactory;
 import org.masouras.app.base.element.util.VaadinNotificationFactory;
 import org.masouras.data.control.service.PrintFileService;
@@ -86,7 +86,7 @@ public class PrintLettersPanelFactory {
     private void printSelectedLetters(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState,
                                       ComboBox<String> printerCombo, TextField folderField) {
         selectedItemsProgressState.progressStart();
-        AsyncUiExecutor.runWithUiLock(
+        AsyncExecutorProvider.runAsync(
                 () -> printLettersService.printLetters(selectedItemsProgressState, printerCombo.getValue(), folderField.getValue()),
                 selectedItemsProgressState::progressStop,
                 selectedItemsProgressState::progressStop
