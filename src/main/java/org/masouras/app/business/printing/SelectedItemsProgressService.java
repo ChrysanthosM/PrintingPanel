@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
-public class PrintLettersProgressService {
+public class SelectedItemsProgressService {
     private final Map<String, AtomicInteger> progress = new ConcurrentHashMap<>();
 
     public String startJob() {
@@ -23,6 +23,7 @@ public class PrintLettersProgressService {
     public void increment(String jobId) {
         if (progress.containsKey(jobId)) progress.get(jobId).incrementAndGet();
     }
+
     public int getCurrent(String jobId) {
         return progress.getOrDefault(jobId, new AtomicInteger(0)).get();
     }
