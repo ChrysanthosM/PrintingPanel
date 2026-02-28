@@ -54,14 +54,12 @@ public final class SelectedItemsProgressState<T> {
         selectedItemsProgressService.increment(printingJobID);
     }
 
-    public void progressEnded() { progressEnded(null); }
-    public void progressEnded(@Nullable Throwable throwable) {
-        currentUI.access(() -> progressEndedMain(throwable));
-    }
+    public void progressEndedOK() { currentUI.access(() -> progressEndedMain(null)); }
+    public void progressEndedError(@Nullable Throwable throwable) { currentUI.access(() -> progressEndedMain(throwable)); }
     private void progressEndedMain(Throwable throwable) {
         currentUI.setPollInterval(-1);
         pollRegistration.remove();
-        progressPanel.finish(throwable == null);
+        progressPanel.finish(throwable == null && progressIsNotCancelled());
         selectedItemsProgressService.endJob(printingJobID);
 
         if (throwable == null) genericGridContainer.refreshGrid();

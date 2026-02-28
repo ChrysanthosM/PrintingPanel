@@ -25,12 +25,12 @@ public class PrintLettersService {
     private final PrintingFilesService printingFilesService;
     private final PrintFileService printFileService;
 
-    public void printLetters(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState, String selectedPrinter, @Nullable String selectedOutputPath) {
+    public boolean printLetters(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState, String selectedPrinter, @Nullable String selectedOutputPath) {
         Preconditions.checkArgument(StringUtils.isNotBlank(selectedItemsProgressState.getPrintingJobID()));
         Preconditions.checkArgument(StringUtils.isNotBlank(selectedPrinter), "Selected printer cannot be empty");
-        printLettersMain(selectedItemsProgressState, selectedPrinter, selectedOutputPath);
+        return printLettersMain(selectedItemsProgressState, selectedPrinter, selectedOutputPath);
     }
-    private void printLettersMain(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState, String selectedPrinter, String selectedOutputPath) {
+    private boolean printLettersMain(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState, String selectedPrinter, String selectedOutputPath) {
         List<LetterToPrintDTO> letterToPrintDTOS = selectedItemsProgressState.getSelectedItemsCached();
         if (log.isInfoEnabled()) log.info("Starting to print {} letters", letterToPrintDTOS.size());
 
@@ -44,6 +44,7 @@ public class PrintLettersService {
                     archiveLetters(Set.of(entry.getKey()));
                     selectedItemsProgressState.progressIncrement();
                 }));
+        return selectedItemsProgressState.progressIsNotCancelled();
     }
 
     public void archiveLetters(Set<LetterToPrintDTO> letterToPrintDTOS) {
