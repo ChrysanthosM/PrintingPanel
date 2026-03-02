@@ -50,7 +50,7 @@ public class PrintLettersPanelFactory {
                 _ -> new FolderBrowserDialog(folderField, folderField.getValue()).open(), ButtonVariant.LUMO_TERTIARY);
 
 
-        SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState = new SelectedItemsProgressState<>(selectedItemsProgressService, genericGridContainer);
+        SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState = new SelectedItemsProgressState<>(true, selectedItemsProgressService, genericGridContainer);
         Button printButton = VaadinButtonFactory.createButton("Print Selected", new Icon(VaadinIcon.PRINT), "Print Selected",
                 _ -> printSelectedLetters(selectedItemsProgressState, printerCombo, folderField),
                 ButtonVariant.LUMO_TERTIARY);
@@ -85,10 +85,11 @@ public class PrintLettersPanelFactory {
 
     private void printSelectedLetters(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState,
                                       ComboBox<String> printerCombo, TextField folderField) {
-        selectedItemsProgressState.progressStart(true);
+        selectedItemsProgressState.progressStart();
         AsyncExecutorProvider.runAsyncSequential(
                 List.of(
-                        () -> printLettersService.printLetters(selectedItemsProgressState, printerCombo.getValue(), folderField.getValue()),
+                        () -> printLettersService.prepareLettersForPrinting(selectedItemsProgressState),
+                        () -> printLettersService.reEnabledDataGrid(selectedItemsProgressState),
                         () -> printLettersService.printLetters(selectedItemsProgressState, printerCombo.getValue(), folderField.getValue())
                 ),
                 _ -> selectedItemsProgressState.progressEndedOK(),

@@ -11,11 +11,11 @@ import org.masouras.data.control.service.PrintFileService;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingDataService;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingFilesService;
 import org.masouras.model.mssql.schema.jpa.control.entity.adapter.domain.LetterToPrintDTO;
+import org.masouras.model.mssql.schema.jpa.control.entity.enums.PrintingStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -31,7 +31,7 @@ public class PrintLettersService {
         return printLettersMain(selectedItemsProgressState, selectedPrinter, selectedOutputPath);
     }
     private boolean printLettersMain(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState, String selectedPrinter, String selectedOutputPath) {
-        List<LetterToPrintDTO> letterToPrintDTOS = selectedItemsProgressState.getSelectedItemsCached();
+        Set<LetterToPrintDTO> letterToPrintDTOS = selectedItemsProgressState.getSelectedItemsCached();
         if (log.isInfoEnabled()) log.info("Starting to print {} letters", letterToPrintDTOS.size());
 
         letterToPrintDTOS.stream()
@@ -47,14 +47,27 @@ public class PrintLettersService {
         return selectedItemsProgressState.progressIsNotCancelled();
     }
 
+    public boolean prepareLettersForPrinting(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState) {
+        Set<LetterToPrintDTO> letterToPrintDTOS = selectedItemsProgressState.getSelectedItemsCached();
+        if (log.isInfoEnabled()) log.info("Preparing {} letters for printing", letterToPrintDTOS.size());
+        int updatedCount = updateSetPrintingStatus(letterToPrintDTOS, PrintingStatus.FOR_PRINTING);
+        if (log.isInfoEnabled()) log.info("{} letters marked as FOR_PRINTING", updatedCount);
+        return updatedCount > 0;
+    }
+
+    public boolean reEnabledDataGrid(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState) {
+        selectedItemsProgressState.progressContinue();
+        return true;
+    }
+
     public void archiveLetters(Set<LetterToPrintDTO> letterToPrintDTOS) {
         if (log.isInfoEnabled()) log.info("Starting to archive {} letters", letterToPrintDTOS.size());
-        int updatedCount = archiveLettersMain(letterToPrintDTOS);
+        int updatedCount = updateSetPrintingStatus(letterToPrintDTOS, PrintingStatus.PRINTED);
         if (log.isInfoEnabled()) log.info("{} letters archived", updatedCount);
     }
-    private int archiveLettersMain(Set<LetterToPrintDTO> letterToPrintDTOS) {
+    private int updateSetPrintingStatus(Set<LetterToPrintDTO> letterToPrintDTOS, PrintingStatus printingStatus) {
         if (CollectionUtils.isEmpty(letterToPrintDTOS)) return 0;
-        List<Long> listRecIDs = letterToPrintDTOS.stream().map(LetterToPrintDTO::getRecId).toList();
-        return printingDataService.updateSetPrinted(listRecIDs);
+        Set<Long> listRecIDs = letterToPrintDTOS.stream().map(LetterToPrintDTO::getRecId).filter(Objects::nonNull).collect(Collectors.toSet());
+        return printingDataService.updateSetPrintingStatus(listRecIDs, printingStatus);
     }
 }
