@@ -5,6 +5,7 @@ import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.masouras.app.base.element.component.GenericGridContainer;
 import org.masouras.app.base.element.util.ProgressPanel;
 import org.masouras.app.base.element.util.VaadinNotificationFactory;
@@ -31,8 +32,8 @@ public final class SelectedItemsProgressState<T> {
     public void progressStart() {
         genericGridContainer.setEnabled(false);
         progressCancelled.set(false);
-
         printingJobID = selectedItemsProgressService.startJob();
+
         selectedItemsCached = genericGridContainer.getGridState().getGrid().getSelectedItems();
         progressPanel.start(selectedItemsCached.size());
         if (cancelable) progressPanel.setCancelCallback(this::progressMustCancel);
@@ -49,6 +50,9 @@ public final class SelectedItemsProgressState<T> {
         });
     }
 
+    public boolean progressIsCancelled() {
+        return progressCancelled.get();
+    }
     public boolean progressIsNotCancelled() {
         return !progressCancelled.get();
     }
@@ -56,8 +60,8 @@ public final class SelectedItemsProgressState<T> {
         progressCancelled.set(true);
     }
 
-    public void progressIncrement() {
-        selectedItemsProgressService.increment(printingJobID);
+    public void progressIncrement(int increment) {
+        selectedItemsProgressService.increment(printingJobID, increment);
     }
 
     public void progressEndedOK() { currentUI.access(() -> progressEndedMain(null)); }

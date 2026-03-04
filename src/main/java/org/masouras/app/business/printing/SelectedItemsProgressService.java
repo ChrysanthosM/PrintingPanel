@@ -20,8 +20,8 @@ public class SelectedItemsProgressService {
         progress.remove(jobId);
     }
 
-    public void increment(String jobId) {
-        if (progress.containsKey(jobId)) progress.get(jobId).incrementAndGet();
+    public void increment(String jobId, int increment) {
+        if (progress.containsKey(jobId)) progress.get(jobId).addAndGet(increment);
     }
 
     public int getCurrent(String jobId) {

@@ -1,5 +1,6 @@
 package org.masouras.app.business.printing;
 
+import com.google.common.base.Preconditions;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -8,6 +9,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.textfield.TextField;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.masouras.app.base.element.component.GenericGridContainer;
 import org.masouras.app.base.element.control.FolderBrowserDialog;
 import org.masouras.app.base.element.control.SelectedItemsActionsPanel;
@@ -88,6 +90,7 @@ public class PrintLettersPanelFactory {
         selectedItemsProgressState.progressStart();
         AsyncExecutorProvider.runAsyncSequential(
                 List.of(
+                        () -> printLettersService.validateSelectedLetters(selectedItemsProgressState, printerCombo),
                         () -> printLettersService.prepareLettersForPrinting(selectedItemsProgressState),
                         () -> printLettersService.reEnabledDataGrid(selectedItemsProgressState),
                         () -> printLettersService.printLetters(selectedItemsProgressState, printerCombo.getValue(), folderField.getValue())
