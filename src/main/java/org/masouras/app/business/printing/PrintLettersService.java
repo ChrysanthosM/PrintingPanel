@@ -14,7 +14,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.masouras.app.base.element.control.SelectedItemsProgressState;
-import org.masouras.data.boundary.FilesFacade;
+import org.masouras.data.facade.FilesFacade;
 import org.masouras.data.control.service.PrintFileService;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingDataService;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingFilesService;
