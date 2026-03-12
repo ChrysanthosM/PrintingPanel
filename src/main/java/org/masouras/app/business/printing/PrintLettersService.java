@@ -141,7 +141,7 @@ public class PrintLettersService {
     public boolean prepareLettersForPrinting(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState) {
         Set<LetterToPrintDTO> letterToPrintDTOS = selectedItemsProgressState.getSelectedItemsCached();
         if (log.isInfoEnabled()) log.info("Preparing {} letters for printing", letterToPrintDTOS.size());
-        int updatedCount = updateSetPrintingStatus(letterToPrintDTOS, PrintingStatus.FOR_PRINTING);
+        int updatedCount = updateSetPrintingStatus(letterToPrintDTOS, PrintingStatus.PREPARE_FOR_PRINTING);
         if (log.isInfoEnabled()) log.info("{} letters marked as FOR_PRINTING", updatedCount);
         return updatedCount > 0;
     }
