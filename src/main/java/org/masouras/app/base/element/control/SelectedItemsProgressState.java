@@ -5,7 +5,6 @@ import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
 import org.masouras.app.base.element.component.GenericGridContainer;
 import org.masouras.app.base.element.util.ProgressPanel;
 import org.masouras.app.base.element.util.VaadinNotificationFactory;

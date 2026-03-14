@@ -1,6 +1,5 @@
 package org.masouras.app.business.printing;
 
-import com.google.common.base.Preconditions;
 import com.vaadin.flow.component.combobox.ComboBox;
 import jakarta.annotation.Nullable;
 import lombok.NonNull;
@@ -8,14 +7,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.masouras.app.base.element.control.SelectedItemsProgressState;
-import org.masouras.facade.FilesFacade;
 import org.masouras.control.service.PrintFileService;
+import org.masouras.facade.FilesFacade;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingDataService;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingFilesService;
 import org.masouras.model.mssql.schema.jpa.control.entity.adapter.domain.LetterToPrintDTO;
@@ -132,9 +131,9 @@ public class PrintLettersService {
     }
 
     public boolean validateSelectedLetters(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState, ComboBox<String> printerCombo) {
-        Preconditions.checkArgument(StringUtils.isNotEmpty(selectedItemsProgressState.getPrintingJobID()));
-        Preconditions.checkArgument(StringUtils.isNotBlank(printerCombo.getValue()), "Selected printer cannot be empty");
-        Preconditions.checkArgument(!selectedItemsProgressState.getGenericGridContainer().getGridState().getGrid().getSelectedItems().isEmpty(), "No letters selected for printing");
+        Validate.notBlank(selectedItemsProgressState.getPrintingJobID());
+        Validate.notBlank(printerCombo.getValue(), "Selected printer cannot be empty");
+        Validate.notEmpty(selectedItemsProgressState.getSelectedItemsCached(), "No letters selected for printing");
         return true;
     }
 

@@ -19,9 +19,9 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import jakarta.persistence.EmbeddedId;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
+import org.masouras.app.base.element.control.SelectedItemsActionsPanel;
 import org.masouras.app.base.element.util.VaadinButtonFactory;
 import org.masouras.app.base.element.util.VaadinGridUtils;
-import org.masouras.app.base.element.control.SelectedItemsActionsPanel;
 import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.domain.Page;
 
