@@ -19,13 +19,13 @@ import org.masouras.model.mssql.schema.jpa.boundary.PrintingDataService;
 import org.masouras.model.mssql.schema.jpa.boundary.PrintingFilesService;
 import org.masouras.model.mssql.schema.jpa.control.entity.adapter.domain.LetterToPrintDTO;
 import org.masouras.model.mssql.schema.jpa.control.entity.enums.PrintingStatus;
+import org.masouras.util.ChunkUtil;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,7 +46,7 @@ public class PrintLettersService {
     }
 
     private boolean printLettersProcedure(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState, String selectedPrinter, String selectedOutputPath) {
-        Map<Integer, Set<LetterToPrintDTO>> chunkedLettersToPrintDTOs = chunkLettersToPrintDTOs(selectedItemsProgressState.getSelectedItemsCached(), CHUNK_SIZE);
+        Map<Integer, Set<LetterToPrintDTO>> chunkedLettersToPrintDTOs = ChunkUtil.chunkOf(selectedItemsProgressState.getSelectedItemsCached(), CHUNK_SIZE);
         chunkedLettersToPrintDTOs.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .takeWhile(_ -> selectedItemsProgressState.progressIsNotCancelled())
@@ -105,15 +105,6 @@ public class PrintLettersService {
         }
     }
 
-    private Map<Integer, Set<LetterToPrintDTO>> chunkLettersToPrintDTOs(Set<LetterToPrintDTO> letterToPrintDTOS, int chunkSize) {
-        AtomicInteger index = new AtomicInteger(0);
-        return letterToPrintDTOS.stream()
-                .collect(Collectors.groupingBy(
-                        _ -> index.getAndIncrement() / chunkSize,
-                        LinkedHashMap::new,
-                        Collectors.toUnmodifiableSet()
-                ));
-    }
     public @NonNull List<byte[]> getPdfByteArrayList(Set<LetterToPrintDTO> letterToPrintDTOS) {
         List<Long> finalContentIds = letterToPrintDTOS.stream().map(LetterToPrintDTO::getFinalContentId).filter(Objects::nonNull).toList();
         if (CollectionUtils.isEmpty(finalContentIds)) return Collections.emptyList();
