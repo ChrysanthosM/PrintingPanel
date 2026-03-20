@@ -9,6 +9,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -78,23 +79,26 @@ public class PrintLettersService {
         }
     }
 
-    private byte[] mergePDFsToPrint(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState, List<byte[]> pdfByteArray) throws IOException {
-        try (PDDocument mergedPDDocument = new PDDocument()) {
-            for (byte[] pdfBytes : pdfByteArray) {
-                try (PDDocument pdDocument = Loader.loadPDF(pdfBytes)) {
+    private byte[] mergePDFsToPrint(SelectedItemsProgressState<LetterToPrintDTO> selectedItemsProgressState,
+                                    List<byte[]> pdfByteArray) throws IOException {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            PDFMergerUtility merger = new PDFMergerUtility();
+            merger.setDestinationStream(byteArrayOutputStream);
+
+            try (PDDocument mergedPDDocument = new PDDocument()) {
+                for (byte[] pdfBytes : pdfByteArray) {
+                    if (selectedItemsProgressState.progressIsCancelled()) return ArrayUtils.EMPTY_BYTE_ARRAY;
                     addBlankPage(mergedPDDocument);
-                    for (PDPage page : pdDocument.getPages()) {
-                        mergedPDDocument.addPage(page);
-                        if (selectedItemsProgressState.progressIsCancelled()) return ArrayUtils.EMPTY_BYTE_ARRAY;
+                    try (PDDocument sourceDoc = Loader.loadPDF(pdfBytes)) {
+                        merger.appendDocument(mergedPDDocument, sourceDoc);
                     }
                 }
-                if (selectedItemsProgressState.progressIsCancelled()) return ArrayUtils.EMPTY_BYTE_ARRAY;
+                mergedPDDocument.save(byteArrayOutputStream);
             }
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            mergedPDDocument.save(byteArrayOutputStream);
             return byteArrayOutputStream.toByteArray();
         }
     }
+
     private void addBlankPage(PDDocument mergedPDDocument) {
         // Ensure next PDF starts on an even page
         int currentPages = mergedPDDocument.getNumberOfPages();
