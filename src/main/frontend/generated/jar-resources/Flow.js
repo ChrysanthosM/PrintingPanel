@@ -94,12 +94,8 @@ export class Flow {
         // Use capture phase to detect prevented / stopped events.
         document.addEventListener('click', (_e) => {
             if (_e.target) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                if (_e.target.hasAttribute('router-link')) {
+                if (_e.composedPath().some((node) => node instanceof HTMLElement && node.hasAttribute('router-link'))) {
                     this.navigation = 'link';
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
                 }
                 else if (_e.composedPath().some((node) => node.nodeName === 'A')) {
                     this.navigation = 'client';
