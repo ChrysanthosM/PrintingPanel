@@ -8,8 +8,8 @@ import org.masouras.app.base.element.component.GenericGridContainer;
 import org.masouras.app.base.element.control.GenericDtoView;
 import org.masouras.app.base.element.control.SelectedItemsActionsPanel;
 import org.masouras.app.business.printing.PrintLettersPanelFactory;
-import org.masouras.model.mssql.schema.jpa.boundary.PrintingDataService;
-import org.masouras.model.mssql.schema.jpa.control.entity.adapter.domain.LetterToPrintDTO;
+import org.masouras.model.maria.schema.jpa.boundary.PrintingDataService;
+import org.masouras.model.maria.schema.jpa.control.entity.adapter.domain.LetterToPrintDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

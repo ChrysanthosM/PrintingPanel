@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.masouras.app.base.element.component.GenericEntityFormContainer;
 import org.masouras.app.base.element.component.GenericGridContainer;
 import org.masouras.app.base.element.util.VaadinSpringBridge;
-import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
+import org.masouras.model.maria.schema.jpa.boundary.GenericCrudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

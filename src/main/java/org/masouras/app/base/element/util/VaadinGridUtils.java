@@ -7,7 +7,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.textfield.TextField;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.collections4.CollectionUtils;
-import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
+import org.masouras.model.maria.schema.jpa.control.vaadin.FormField;
 
 import java.lang.reflect.Field;
 import java.util.List;

@@ -25,8 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.masouras.app.base.element.util.VaadinSpringBridge;
-import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
-import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
+import org.masouras.model.maria.schema.jpa.boundary.GenericCrudService;
+import org.masouras.model.maria.schema.jpa.control.vaadin.FormField;
 
 import java.lang.reflect.Field;
 import java.util.*;

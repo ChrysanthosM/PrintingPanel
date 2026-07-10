@@ -12,7 +12,7 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
-import org.masouras.model.mssql.schema.jpa.control.vaadin.FormField;
+import org.masouras.model.maria.schema.jpa.control.vaadin.FormField;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.lang.reflect.Field;

@@ -15,7 +15,7 @@ import org.masouras.app.base.element.control.SelectedItemsProgressState;
 import org.masouras.app.base.element.util.VaadinButtonFactory;
 import org.masouras.app.base.element.util.VaadinNotificationFactory;
 import org.masouras.control.service.PrintFileService;
-import org.masouras.model.mssql.schema.jpa.control.entity.adapter.domain.LetterToPrintDTO;
+import org.masouras.model.maria.schema.jpa.control.entity.adapter.domain.LetterToPrintDTO;
 import org.masouras.util.AsyncExecutorProvider;
 import org.springframework.stereotype.Component;
 

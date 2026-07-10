@@ -3,8 +3,8 @@ package org.masouras.app.business.setup;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.jspecify.annotations.Nullable;
 import org.masouras.app.base.element.control.GenericEntityForm;
-import org.masouras.model.mssql.schema.jpa.control.entity.PrintingSetUpEntity;
-import org.masouras.model.mssql.schema.jpa.control.entity.PrintingSetUpKey;
+import org.masouras.model.maria.schema.jpa.control.entity.PrintingSetUpEntity;
+import org.masouras.model.maria.schema.jpa.control.entity.PrintingSetUpKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

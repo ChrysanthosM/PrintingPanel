@@ -5,8 +5,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.masouras.app.base.element.control.GenericCrudView;
-import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpEntity;
-import org.masouras.model.mssql.schema.jpa.control.entity.LetterSetUpKey;
+import org.masouras.model.maria.schema.jpa.control.entity.LetterSetUpEntity;
+import org.masouras.model.maria.schema.jpa.control.entity.LetterSetUpKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

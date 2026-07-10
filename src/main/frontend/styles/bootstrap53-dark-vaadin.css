@@ -5,12 +5,12 @@
 
 :root {
   /* Core colors */
-  --bs-body-bg: #212529;
+  --bs-body-bg: #2f2f2f;
   --bs-body-color: #f8f9fa;
 
-  --bs-surface: #2b3035;
-  --bs-surface-alt: #343a40;
-  --bs-border-color: #3a3f44;
+  --bs-surface: #343a40;
+  --bs-surface-alt: #3d4349;
+  --bs-border-color: #4a4f55;
 
   --bs-primary: #0d6efd;
   --bs-primary-hover: #0b5ed7;
@@ -27,6 +27,12 @@
 
   --bs-focus-ring: rgba(13, 110, 253, 0.25);
 }
+
+/* Headers always white */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--bs-body-color) !important;
+}
+
 
 /* ==========================================
    Global
@@ -536,4 +542,41 @@ vaadin-menu-bar-button:hover {
 .error-text {
   color: var(--bs-danger);
   font-weight: 500;
+}
+
+/* ==========================================
+   FIX: Dark main content
+   ========================================== */
+
+/* Κεντρικό περιεχόμενο μέσα στο AppLayout */
+vaadin-app-layout > * {
+  background-color: var(--bs-body-bg) !important;
+  color: var(--bs-body-color) !important;
+}
+
+/* RouterLayout / Main content div */
+main,
+.content,
+#content,
+[slot="content"] {
+  background-color: var(--bs-body-bg) !important;
+  color: var(--bs-body-color) !important;
+}
+
+/* Vaadin layouts που από default είναι άσπρα */
+vaadin-vertical-layout,
+vaadin-horizontal-layout,
+vaadin-scroller,
+vaadin-form-layout {
+  background-color: var(--bs-body-bg) !important;
+  color: var(--bs-body-color) !important;
+}
+
+/* Divs που χρησιμοποιούνται ως containers */
+div[theme~="dark"],
+div.main,
+div.view,
+div.layout {
+  background-color: var(--bs-body-bg) !important;
+  color: var(--bs-body-color) !important;
 }

@@ -1,7 +1,7 @@
 package org.masouras.app.base.element.control;
 
-import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudService;
-import org.masouras.model.mssql.schema.jpa.boundary.GenericCrudServiceStrategy;
+import org.masouras.model.maria.schema.jpa.boundary.GenericCrudService;
+import org.masouras.model.maria.schema.jpa.boundary.GenericCrudServiceStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

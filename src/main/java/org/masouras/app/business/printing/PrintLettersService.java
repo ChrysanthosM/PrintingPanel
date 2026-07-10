@@ -16,10 +16,10 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.masouras.app.base.element.control.SelectedItemsProgressState;
 import org.masouras.control.service.PrintFileService;
 import org.masouras.facade.FilesFacade;
-import org.masouras.model.mssql.schema.jpa.boundary.PrintingDataService;
-import org.masouras.model.mssql.schema.jpa.boundary.PrintingFilesService;
-import org.masouras.model.mssql.schema.jpa.control.entity.adapter.domain.LetterToPrintDTO;
-import org.masouras.model.mssql.schema.jpa.control.entity.enums.PrintingStatus;
+import org.masouras.model.maria.schema.jpa.boundary.PrintingDataService;
+import org.masouras.model.maria.schema.jpa.boundary.PrintingFilesService;
+import org.masouras.model.maria.schema.jpa.control.entity.adapter.domain.LetterToPrintDTO;
+import org.masouras.model.maria.schema.jpa.control.entity.enums.PrintingStatus;
 import org.masouras.util.ChunkUtil;
 import org.springframework.stereotype.Service;
 
