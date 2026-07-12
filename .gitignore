@@ -1,49 +1,66 @@
-############################
-# IntelliJ IDEA
-############################
+### Java / Maven ###
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.log
+
+### Spring Boot ###
+application-local.properties
+application-*.local.properties
+*.env
+.env
+.env.*
+
+### Vaadin ###
+frontend/generated/
+frontend/.vite/
+frontend/.pnpm-debug.log
+vite.config.ts.timestamp-*
+pnpm-lock.yaml
+node_modules/
+webpack.generated.js
+vite.generated.ts
+tsconfig.generated.json
+
+### Vaadin production bundle ###
+vaadin-dev-server/
+vaadin-dev-server-*
+vaadin-usage-statistics.json
+
+### IntelliJ IDEA ###
 .idea/
+*.iws
+*.ipr
 *.iml
 out/
 
-############################
-# Maven
-############################
-target/
+### VS Code ###
+.vscode/
 
-############################
-# Vaadin
-############################
-node_modules/
-frontend/generated/
-target/frontend/
-vite.generated.ts
-pnpm-lock.yaml
-package-lock.json
-webpack.generated.js
-vite.config.ts
-types.d.ts
-
-############################
-# Logs
-############################
-*.log
-logs/
-
-############################
-# OS Files
-############################
+### OS junk ###
 .DS_Store
 Thumbs.db
 
-############################
-# Environment / Secrets
-############################
-*.env
-.env.*
-application-local.yml
-application-local.properties
-/src/main/bundles/dev.bundle
-/package.json
-/src/main/bundles/README.md
-/tsconfig.json
-/src/main/resources/cert/
+### Logs ###
+*.log
+logs/
+
+### Docker ###
+docker-compose.override.yml
+docker-compose.local.yml
+secrets/
+*.secret
+*.secrets
+
+### Certificates ###
+cert/
+*.pem
+*.crt
+*.key
+
+### Misc ###
+*.tmp
+*.bak
