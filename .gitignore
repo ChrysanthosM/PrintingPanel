@@ -34,7 +34,6 @@ vaadin-usage-statistics.json
 .idea/
 *.iws
 *.ipr
-*.iml
 out/
 
 ### VS Code ###
@@ -45,7 +44,6 @@ out/
 Thumbs.db
 
 ### Logs ###
-*.log
 logs/
 
 ### Docker ###
