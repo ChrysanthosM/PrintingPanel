@@ -15,7 +15,7 @@ application-*.local.properties
 .env.*
 
 ### Vaadin ###
-frontend/generated/
+**/frontend/generated/
 frontend/.vite/
 frontend/.pnpm-debug.log
 vite.config.ts.timestamp-*
